@@ -187,9 +187,12 @@ if st.session_state.authenticated:
                     color='age',
                     markers=False,
                     line_shape="linear",
-                    title=f"Trend of {selected_dash_measure} – {selected_dash_gender} by Age Group and Year",
-                    labels={"val": f"{metric_display_names[selected_dash_metric]}", "year": "Year", "age": "Age Group"}
-                    )
+                    title=f"Time Trend of {selected_dash_measure} in {selected_dash_gender}s by Age Group",,
+                    labels={
+                        "val": f"{selected_dash_measure} ({metric_display_names[selected_dash_metric]})",
+                        "year": "Year",
+                        "age": "Age Group"
+                    }
                     st.plotly_chart(fig, use_container_width=True)
                 else:
                     st.warning("No data found for the selected filters.")
