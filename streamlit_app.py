@@ -46,14 +46,14 @@ if st.session_state.authenticated:
             selected_measure = st.selectbox("Choose a measure to analyze:", ["Deaths", "Prevalence", "Incidence"])
             st.markdown("### Visualizations")
             show_box_age = st.checkbox("Boxplot of Distribution by Age Group")
-            show_box_sex = st.checkbox("Boxplot of Distribution by Sex")
-            show_heatmap = st.checkbox("Heatmap of Average by Age and Sex")
+            show_box_sex = st.checkbox("Boxplot of Distribution by Gender")
+            show_heatmap = st.checkbox("Heatmap of Average by Age and Gender")
             show_bar_age = st.checkbox("Bar Chart of Total by Age Group")
-            show_bar_sex = st.checkbox("Bar Chart of Total by Sex")
+            show_bar_sex = st.checkbox("Bar Chart of Total by Gender")
 
     # === Dashboard Section Header ===
     st.sidebar.markdown("## 📈 Dashboard Settings")
-    show_dashboard = st.sidebar.checkbox("📈 Show Interactive Dashboard")
+    show_dashboard = st.sidebar.checkbox("Show Interactive Dashboard")
 
     if show_dashboard:
         metric_display_names = {
@@ -65,15 +65,18 @@ if st.session_state.authenticated:
             options=list(metric_display_names.keys()),
             format_func=lambda x: metric_display_names[x]
         )
-        with st.sidebar.expander("📈 Dashboard Controls", expanded=True):
-            selected_dash_measure = st.selectbox("Choose Measure for Dashboard:", sorted(df["measure"].unique()))
-            selected_dash_sex = st.selectbox("Select Sex:", df['sex'].unique())
+        with st.sidebar.expander("Dashboard Controls", expanded=True):
+            existing_measures = list(df["measure"].unique())
+            if "Dally" not in existing_measures:
+                existing_measures.append("Dally")
+            selected_dash_measure = st.selectbox("Choose Measure for Dashboard:", existing_measures)
+            selected_dash_sex = st.selectbox("Select Gender:", df['sex'].unique())
             selected_dash_ages = st.multiselect("Select Age Group(s):", options=sorted_ages)
             selected_dash_years = st.slider(
                 "Select Year Range:",
                 min_value=int(df['year'].min()),
                 max_value=int(df['year'].max()),
-                value=(2005, 2021)
+                value=(2000, 2021)
             )
 
     # === Header ===
@@ -117,14 +120,14 @@ if st.session_state.authenticated:
                     st.pyplot(fig_age)
 
                 if show_box_sex:
-                    st.markdown("**Distribution by Sex**")
+                    st.markdown("**Distribution by Gender**")
                     fig_sex, ax_sex = plt.subplots(figsize=(6, 4))
                     sns.boxplot(data=df_m, x="sex", y="val", ax=ax_sex)
                     ax_sex.set_title(f"Boxplot of {selected_measure} by Sex ({year_min}–{year_max})")
                     st.pyplot(fig_sex)
 
                 if show_heatmap:
-                    st.markdown("**Average by Age and Sex**")
+                    st.markdown("**Average by Age and Gender**")
                     heatmap_data = df_m.pivot_table(index="age", columns="sex", values="val", aggfunc="mean").reindex(index=sorted_ages)
                     fig_heat, ax_heat = plt.subplots(figsize=(8, 5))
                     sns.heatmap(heatmap_data, annot=True, fmt=".0f", cmap="YlOrRd", ax=ax_heat)
@@ -140,7 +143,7 @@ if st.session_state.authenticated:
                     st.pyplot(fig_bar_age)
 
                 if show_bar_sex:
-                    st.markdown("**Total by Sex**")
+                    st.markdown("**Total by Gender**")
                     bar_sex = df_m.groupby("sex")["val"].sum()
                     fig_bar_sex, ax_bar_sex = plt.subplots(figsize=(5, 4))
                     sns.barplot(x=bar_sex.index, y=bar_sex.values, ax=ax_bar_sex)
