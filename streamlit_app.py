@@ -144,14 +144,14 @@ if st.session_state.authenticated:
                     st.markdown("**Sum by Age Group**")
                     bar_age = df_m.groupby("age")["val"].sum().reindex(sorted_ages)
                     fig_bar_age, ax_bar_age = plt.subplots(figsize=(10, 4))
-                    sns.barplot(x=bar_age.index, y=bar_age.values, ax=ax_bar_age
+                    sns.barplot(x=bar_age.index, y=bar_age.values, ax=ax_bar_age)
                     st.pyplot(fig_bar_age)
 
                 if show_bar_sex:
                     st.markdown("**Sum by Gender**")
                     bar_sex = df_m.groupby("sex")["val"].sum()
                     fig_bar_sex, ax_bar_sex = plt.subplots(figsize=(5, 4))
-                    sns.barplot(x=bar_sex.index, y=bar_sex.values, ax=ax_bar_sex
+                    sns.barplot(x=bar_sex.index, y=bar_sex.values, ax=ax_bar_sex)
                     st.pyplot(fig_bar_sex)
 
     # TAB 2: Interactive Dashboard 
