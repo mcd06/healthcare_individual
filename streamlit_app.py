@@ -51,13 +51,22 @@ if st.session_state.authenticated:
             show_bar_age = st.checkbox("Bar Chart of Total by Age Group")
             show_bar_sex = st.checkbox("Bar Chart of Total by Sex")
 
+    # === Dashboard Section Header ===
     st.sidebar.markdown("## 📈 Dashboard Settings")
-    show_dashboard = st.sidebar.checkbox("Show Interactive Dashboard")
+    show_dashboard = st.sidebar.checkbox("📈 Show Interactive Dashboard")
 
     if show_dashboard:
-        with st.sidebar.expander("Dashboard Controls", expanded=True):
+        metric_display_names = {
+            "Number": "Number",
+            "Rate": "Rate (per 100,000)"
+        }
+        selected_dash_metric = st.sidebar.radio(
+            "Select Metric:",
+            options=list(metric_display_names.keys()),
+            format_func=lambda x: metric_display_names[x]
+        )
+        with st.sidebar.expander("📈 Dashboard Controls", expanded=True):
             selected_dash_measure = st.selectbox("Choose Measure for Dashboard:", sorted(df["measure"].unique()))
-            selected_dash_metric = st.sidebar.radio("Select Metric:", df['metric'].unique())
             selected_dash_sex = st.selectbox("Select Sex:", df['sex'].unique())
             selected_dash_ages = st.multiselect("Select Age Group(s):", options=sorted_ages)
             selected_dash_years = st.slider(
