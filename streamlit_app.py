@@ -22,7 +22,7 @@ with st.sidebar:
         if st.button("Logout"):
             st.session_state.authenticated = False
             st.session_state.password_attempt = ""
-            st.experimental_rerun()
+            st.rerun()
     else:
         st.text("Please enter the password")
         st.text_input("Password", type="password", key="password_attempt")
