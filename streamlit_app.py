@@ -31,11 +31,6 @@ with st.sidebar:
             st.session_state.authenticated = True
             st.session_state.has_rerun = False
 
-# === Rerun Once After Login ===
-if st.session_state.authenticated and not st.session_state.get("has_rerun", False):
-    st.session_state["has_rerun"] = True
-    st.experimental_rerun()
-
 # === Main App Content ===
 if st.session_state.authenticated:
     # === Sidebar: Visual Analysis Options ===
