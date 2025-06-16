@@ -37,11 +37,15 @@ if st.session_state.authenticated:
     # Sort age groups ascendingly
     sorted_ages = sorted(df["age"].unique(), key=lambda x: int(x.split('-')[0]) if '-' in x else (100 if '75+' in x else 0))
 
-    # === Sidebar Controls ===
+    # === Sidebar Toggles ===
     st.sidebar.markdown("## 🧪 Analysis Settings")
-    show_analysis = st.sidebar.selectbox("Show Data Analysis?", ["Yes", "No"])
+    show_analysis = st.sidebar.checkbox("📊 Show Data Analysis")
 
-    if show_analysis == "Yes":
+    st.sidebar.markdown("## 📈 Dashboard Settings")
+    show_dashboard = st.sidebar.checkbox("📈 Show Interactive Dashboard")
+
+    # === Conditional Filters ===
+    if show_analysis:
         selected_measure = st.sidebar.selectbox("Choose a metric to analyze:", ["Deaths", "Prevalence", "Incidence"])
         st.sidebar.markdown("### 📊 Select Visualizations")
         show_box_age = st.sidebar.checkbox("Boxplot of Distribution by Age Group")
@@ -50,10 +54,8 @@ if st.session_state.authenticated:
         show_bar_age = st.sidebar.checkbox("Bar Chart of Total by Age Group")
         show_bar_sex = st.sidebar.checkbox("Bar Chart of Total by Sex")
 
-    st.sidebar.markdown("## 📈 Dashboard Settings")
-    show_dashboard = st.sidebar.selectbox("Show Interactive Dashboard?", ["Yes", "No"])
-
-    if show_dashboard == "Yes":
+    if show_dashboard:
+        selected_dash_measure = st.sidebar.selectbox("Choose Measure for Dashboard:", sorted(df["measure"].unique()))
         selected_dash_metric = st.sidebar.radio("Select Metric:", df['metric'].unique())
         selected_dash_sex = st.sidebar.selectbox("Select Sex:", df['sex'].unique())
         selected_dash_ages = st.sidebar.multiselect("Select Age Group(s):", options=sorted_ages)
@@ -63,8 +65,6 @@ if st.session_state.authenticated:
             max_value=int(df['year'].max()),
             value=(2005, 2021)
         )
-    else:
-        selected_dash_metric = None
 
     # === Header ===
     st.markdown("## 🧬 Lebanon Cancer Burden Dashboard")
@@ -79,17 +79,17 @@ if st.session_state.authenticated:
     year_max = int(df["year"].max())
 
     # === Tabs Layout ===
-    if show_analysis == "Yes" and show_dashboard == "Yes":
+    if show_analysis and show_dashboard:
         tab1, tab2 = st.tabs(["📊 Data Analysis", "📈 Interactive Dashboard"])
-    elif show_analysis == "Yes":
+    elif show_analysis:
         tab1 = st.tabs(["📊 Data Analysis"])[0]
-    elif show_dashboard == "Yes":
+    elif show_dashboard:
         tab2 = st.tabs(["📈 Interactive Dashboard"])[0]
     else:
         st.info("Please enable one or both views from the sidebar to continue.")
 
     # === TAB 1: Data Analysis ===
-    if show_analysis == "Yes":
+    if show_analysis:
         with tab1:
             st.markdown("## 📊 Data Analysis")
 
@@ -138,14 +138,14 @@ if st.session_state.authenticated:
                     ax_bar_sex.set_title(f"Total {selected_measure} by Sex ({year_min}–{year_max})")
                     st.pyplot(fig_bar_sex)
 
-    # === TAB 2: Dashboard ===
-    if show_dashboard == "Yes":
+    # === TAB 2: Interactive Dashboard ===
+    if show_dashboard:
         with tab2:
             st.markdown("## 📈 Interactive Dashboard")
 
-            if selected_dash_metric and selected_dash_ages:
+            if selected_dash_ages:
                 filtered_df = df[
-                    (df['measure'] == selected_measure) &
+                    (df['measure'] == selected_dash_measure) &
                     (df['metric'] == selected_dash_metric) &
                     (df['sex'] == selected_dash_sex) &
                     (df['age'].isin(selected_dash_ages)) &
@@ -160,7 +160,7 @@ if st.session_state.authenticated:
                         color='age',
                         markers=False,
                         line_shape="spline",
-                        title=f"{selected_dash_metric} of {selected_measure} ({selected_dash_sex}) by Age Group",
+                        title=f"{selected_dash_metric} of {selected_dash_measure} ({selected_dash_sex}) by Age Group",
                         labels={"val": selected_dash_metric}
                     )
                     st.plotly_chart(fig, use_container_width=True)
