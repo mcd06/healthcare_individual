@@ -38,13 +38,13 @@ if st.session_state.authenticated:
     sorted_ages = sorted(df["age"].unique(), key=lambda x: int(x.split('-')[0]) if '-' in x else (100 if '75+' in x else 0))
 
     # === Sidebar Toggles ===
-    st.sidebar.markdown("## 🧪 Analysis Settings")
-    show_analysis = st.sidebar.checkbox("📊 Show Data Analysis")
+    st.sidebar.markdown("## 📊 Analysis Settings")
+    show_analysis = st.sidebar.checkbox("Show Data Analysis") 
 
     if show_analysis:
-        with st.sidebar.expander("📊 Analysis Controls", expanded=True):
+        with st.sidebar.expander("Analysis Controls", expanded=True):
             selected_measure = st.selectbox("Choose a metric to analyze:", ["Deaths", "Prevalence", "Incidence"])
-            st.markdown("### 📊 Visualizations")
+            st.markdown("### Visualizations")
             show_box_age = st.checkbox("Boxplot of Distribution by Age Group")
             show_box_sex = st.checkbox("Boxplot of Distribution by Sex")
             show_heatmap = st.checkbox("Heatmap of Average by Age and Sex")
@@ -52,10 +52,10 @@ if st.session_state.authenticated:
             show_bar_sex = st.checkbox("Bar Chart of Total by Sex")
 
     st.sidebar.markdown("## 📈 Dashboard Settings")
-    show_dashboard = st.sidebar.checkbox("📈 Show Interactive Dashboard")
+    show_dashboard = st.sidebar.checkbox("Show Interactive Dashboard")
 
     if show_dashboard:
-        with st.sidebar.expander("📈 Dashboard Controls", expanded=True):
+        with st.sidebar.expander("Dashboard Controls", expanded=True):
             selected_dash_measure = st.selectbox("Choose Measure for Dashboard:", sorted(df["measure"].unique()))
             selected_dash_metric = st.radio("Select Metric:", df['metric'].unique())
             selected_dash_sex = st.selectbox("Select Sex:", df['sex'].unique())
@@ -99,7 +99,7 @@ if st.session_state.authenticated:
             if df_m.empty:
                 st.warning(f"No data available for {selected_measure}")
             else:
-                st.markdown(f"### 🧪 {selected_measure} ({year_min}–{year_max})")
+                st.markdown(f"### {selected_measure} ({year_min}–{year_max})")
 
                 if show_box_age:
                     st.markdown("**Distribution by Age Group**")
