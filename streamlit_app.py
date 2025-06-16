@@ -60,7 +60,7 @@ if st.session_state.authenticated:
 
     # Loop through each measure
     for measure in relevant_measures:
-    df_m = df[(df["measure"] == measure) & (df["metric"] == "Number")]
+        df_m = df[(df["measure"] == measure) & (df["metric"] == "Number")]
 
     if df_m.empty:
         st.warning(f"No data available for {measure}")
