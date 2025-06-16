@@ -26,7 +26,6 @@ with st.sidebar:
     else:
         st.text("Please enter the password")
         st.text_input("Password", type="password", key="password_attempt")
-
         if st.session_state.password_attempt == CORRECT_PASSWORD:
             st.session_state.authenticated = True
 
@@ -70,8 +69,8 @@ if st.session_state.authenticated:
     # === Header ===
     st.markdown("## 🧬 Lebanon Cancer Burden Dashboard")
     st.markdown(
-         "### Analyze cancer-related mortality, prevalence, and incidence trends across age groups, "
-         "genders, and time periods in Lebanon using visual and interactive tools."
+        "### Analyze cancer-related mortality, prevalence, and incidence trends across age groups, "
+        "genders, and time periods in Lebanon using visual and interactive tools."
     )
     st.markdown("---")
 
@@ -159,7 +158,8 @@ if st.session_state.authenticated:
                         x='year',
                         y='val',
                         color='age',
-                        markers=True,
+                        markers=False,
+                        line_shape="spline",
                         title=f"{selected_dash_metric} of {selected_measure} ({selected_dash_sex}) by Age Group",
                         labels={"val": selected_dash_metric}
                     )
