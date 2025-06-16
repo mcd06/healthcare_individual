@@ -193,6 +193,7 @@ if st.session_state.authenticated:
                         "year": "Year",
                         "age": "Age Group"
                     }
+                )
                     st.plotly_chart(fig, use_container_width=True)
                 else:
                     st.warning("No data found for the selected filters.")
