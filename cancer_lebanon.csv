@@ -1,4 +1,4 @@
-measure,location,sex,age,cause,metric,year,val
+measure,location,gender,age,cause,metric,year,val
 Deaths,Lebanese Republic,Male,15-19 years,Total cancers,Number,2000,10.0
 Deaths,Lebanese Republic,Female,15-19 years,Total cancers,Number,2000,7.0
 Deaths,Lebanese Republic,Male,15-19 years,Total cancers,Rate,2000,5.64139367826577
