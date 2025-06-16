@@ -52,17 +52,14 @@ if st.session_state.authenticated:
     df = pd.read_csv("cancer_lebanon.csv")
     st.success("Dataset loaded: cancer_lebanon.csv")
 
-    import matplotlib.pyplot as plt
-import seaborn as sns
+    st.markdown("## 📊 Data Analysis")
+    st.write("Explore distribution and burden of key health metrics by age and sex.")
 
-st.markdown("## 📊 Data Analysis")
-st.write("Explore distribution and burden of key health metrics by age and sex.")
+    # Define measures to analyze
+    relevant_measures = ["Deaths", "Prevalence", "Incidence"]
 
-# Define measures to analyze
-relevant_measures = ["Deaths", "Prevalence", "Incidence"]
-
-# Loop through each measure
-for measure in relevant_measures:
+    # Loop through each measure
+    for measure in relevant_measures:
     df_m = df[(df["measure"] == measure) & (df["metric"] == "Number")]
 
     if df_m.empty:
