@@ -78,7 +78,6 @@ if st.session_state.authenticated:
             actual_measures = list(df["measure"].unique())
             final_order = [m for m in dashboard_order if m in actual_measures]
             selected_dash_measure = st.selectbox("Choose Measure for Dashboard:", final_order)
-            selected_dash_measure = st.selectbox("Choose Measure for Dashboard:", existing_measures)
             selected_dash_sex = st.selectbox("Select Gender:", df['sex'].unique())
             selected_dash_ages = st.multiselect("Select Age Group(s):", options=sorted_ages)
             selected_dash_years = st.slider(
