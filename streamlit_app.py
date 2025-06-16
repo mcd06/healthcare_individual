@@ -41,30 +41,31 @@ if st.session_state.authenticated:
     st.sidebar.markdown("## 🧪 Analysis Settings")
     show_analysis = st.sidebar.checkbox("📊 Show Data Analysis")
 
+    if show_analysis:
+        with st.sidebar.expander("📊 Analysis Controls", expanded=True):
+            selected_measure = st.selectbox("Choose a metric to analyze:", ["Deaths", "Prevalence", "Incidence"])
+            st.markdown("### 📊 Visualizations")
+            show_box_age = st.checkbox("Boxplot of Distribution by Age Group")
+            show_box_sex = st.checkbox("Boxplot of Distribution by Sex")
+            show_heatmap = st.checkbox("Heatmap of Average by Age and Sex")
+            show_bar_age = st.checkbox("Bar Chart of Total by Age Group")
+            show_bar_sex = st.checkbox("Bar Chart of Total by Sex")
+
     st.sidebar.markdown("## 📈 Dashboard Settings")
     show_dashboard = st.sidebar.checkbox("📈 Show Interactive Dashboard")
 
-    # === Conditional Filters ===
-    if show_analysis:
-        selected_measure = st.sidebar.selectbox("Choose a metric to analyze:", ["Deaths", "Prevalence", "Incidence"])
-        st.sidebar.markdown("### 📊 Select Visualizations")
-        show_box_age = st.sidebar.checkbox("Boxplot of Distribution by Age Group")
-        show_box_sex = st.sidebar.checkbox("Boxplot of Distribution by Sex")
-        show_heatmap = st.sidebar.checkbox("Heatmap of Average by Age and Sex")
-        show_bar_age = st.sidebar.checkbox("Bar Chart of Total by Age Group")
-        show_bar_sex = st.sidebar.checkbox("Bar Chart of Total by Sex")
-
     if show_dashboard:
-        selected_dash_measure = st.sidebar.selectbox("Choose Measure for Dashboard:", sorted(df["measure"].unique()))
-        selected_dash_metric = st.sidebar.radio("Select Metric:", df['metric'].unique())
-        selected_dash_sex = st.sidebar.selectbox("Select Sex:", df['sex'].unique())
-        selected_dash_ages = st.sidebar.multiselect("Select Age Group(s):", options=sorted_ages)
-        selected_dash_years = st.sidebar.slider(
-            "Select Year Range:",
-            min_value=int(df['year'].min()),
-            max_value=int(df['year'].max()),
-            value=(2005, 2021)
-        )
+        with st.sidebar.expander("📈 Dashboard Controls", expanded=True):
+            selected_dash_measure = st.selectbox("Choose Measure for Dashboard:", sorted(df["measure"].unique()))
+            selected_dash_metric = st.radio("Select Metric:", df['metric'].unique())
+            selected_dash_sex = st.selectbox("Select Sex:", df['sex'].unique())
+            selected_dash_ages = st.multiselect("Select Age Group(s):", options=sorted_ages)
+            selected_dash_years = st.slider(
+                "Select Year Range:",
+                min_value=int(df['year'].min()),
+                max_value=int(df['year'].max()),
+                value=(2005, 2021)
+            )
 
     # === Header ===
     st.markdown("## 🧬 Lebanon Cancer Burden Dashboard")
