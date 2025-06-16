@@ -43,7 +43,7 @@ if st.session_state.authenticated:
 
     if show_analysis:
         with st.sidebar.expander("Analysis Controls", expanded=True):
-            selected_measure = st.selectbox("Choose a metric to analyze:", ["Deaths", "Prevalence", "Incidence"])
+            selected_measure = st.selectbox("Choose a measure to analyze:", ["Deaths", "Prevalence", "Incidence"])
             st.markdown("### Visualizations")
             show_box_age = st.checkbox("Boxplot of Distribution by Age Group")
             show_box_sex = st.checkbox("Boxplot of Distribution by Sex")
@@ -92,7 +92,6 @@ if st.session_state.authenticated:
     # === TAB 1: Data Analysis ===
     if show_analysis:
         with tab1:
-            st.markdown("## 📊 Data Analysis")
 
             df_m = df[(df["measure"] == selected_measure) & (df["metric"] == "Number")]
 
@@ -142,7 +141,6 @@ if st.session_state.authenticated:
     # === TAB 2: Interactive Dashboard ===
     if show_dashboard:
         with tab2:
-            st.markdown("## 📈 Interactive Dashboard")
 
             if selected_dash_ages:
                 filtered_df = df[
