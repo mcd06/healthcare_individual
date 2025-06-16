@@ -174,12 +174,12 @@ if st.session_state.authenticated:
 
                 if not filtered_df.empty:
                     fig = px.line(
-                        filtered_df,
+                        filtered_df.sort_values("year"),
                         x='year',
                         y='val',
                         color='age',
                         markers=False,
-                        line_shape="spline",
+                        line_shape="linear",
                         title=f"Trend of {selected_dash_measure} ({selected_dash_sex}) by Age Group ({metric_display_names[selected_dash_metric]})",
                         labels={
                             "val": f"{selected_dash_measure} ({metric_display_names[selected_dash_metric]})",
