@@ -1,6 +1,6 @@
 import streamlit as st
 
-# Configuration
+# Configuration 
 CORRECT_PASSWORD = "health25"
 
 # Session State Initialization 
@@ -9,20 +9,10 @@ if "authenticated" not in st.session_state:
 if "password_attempt" not in st.session_state:
     st.session_state.password_attempt = ""
 
-# Logo + Title Row (always visible)
-col1, col2 = st.columns([3, 1])
-
-with col1:
-    st.markdown("## 🧬 Lebanon Cancer Burden Dashboard")
-    st.markdown("### Explore age, gender, and time trends of cancer mortality and incidence")
-
-with col2:
-    st.image("IHME.webp", width=120)
-
-st.markdown("---")
-
-# Sidebar Login Logic
+# Sidebar Login Logic 
 with st.sidebar:
+    st.image("IHME.webp", width=150)  
+
     st.title("🔒 Login")
     if st.session_state.authenticated:
         st.success("Access granted.")
@@ -42,7 +32,20 @@ with st.sidebar:
 
 # Main App Content
 if st.session_state.authenticated:
+    # Header: title left, logo right
+    col1, col2 = st.columns([3, 1])
+
+    with col1:
+        st.markdown("## 🧬 Lebanon Cancer Burden Dashboard")
+        st.markdown("### Explore age, gender, and time trends of cancer mortality and incidence")
+
+    with col2:
+        st.image("IHME.webp", width=120)  # ✅ Only visible in header after login
+
+    st.markdown("---")
+
+    # Main dashboard content
     st.info("Upload cleaned data and add charts below this line.")
-    # Example placeholder: st.line_chart(df)
+    # e.g., st.line_chart(df)
 else:
     st.warning("🔒 This cancer analytics dashboard is password-protected. Enter the correct password in the sidebar to access.")
