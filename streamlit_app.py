@@ -125,12 +125,14 @@ if st.session_state.authenticated:
                     st.markdown("**Distribution by Age Group**")
                     fig_age, ax_age = plt.subplots(figsize=(10, 4))
                     sns.boxplot(data=df_m, x="age", y="val", order=sorted_ages, ax=ax_age)
+                    sns.despine(top=True, right=True)
                     st.pyplot(fig_age)
 
                 if show_box_sex:
                     st.markdown("**Distribution by Gender**")
                     fig_sex, ax_sex = plt.subplots(figsize=(6, 4))
                     sns.boxplot(data=df_m, x="sex", y="val", ax=ax_sex)
+                    sns.despine(top=True, right=True)
                     st.pyplot(fig_sex)
 
                 if show_heatmap:
@@ -138,6 +140,7 @@ if st.session_state.authenticated:
                     heatmap_data = df_m.pivot_table(index="age", columns="sex", values="val", aggfunc="mean").reindex(index=sorted_ages)
                     fig_heat, ax_heat = plt.subplots(figsize=(8, 5))
                     sns.heatmap(heatmap_data, annot=True, fmt=".0f", cmap="YlOrRd", ax=ax_heat)
+                    sns.despine(top=True, right=True)
                     st.pyplot(fig_heat)
 
                 if show_bar_age:
@@ -145,6 +148,7 @@ if st.session_state.authenticated:
                     bar_age = df_m.groupby("age")["val"].sum().reindex(sorted_ages)
                     fig_bar_age, ax_bar_age = plt.subplots(figsize=(10, 4))
                     sns.barplot(x=bar_age.index, y=bar_age.values, ax=ax_bar_age)
+                    sns.despine(top=True, right=True)
                     st.pyplot(fig_bar_age)
 
                 if show_bar_sex:
@@ -152,6 +156,7 @@ if st.session_state.authenticated:
                     bar_sex = df_m.groupby("sex")["val"].sum()
                     fig_bar_sex, ax_bar_sex = plt.subplots(figsize=(5, 4))
                     sns.barplot(x=bar_sex.index, y=bar_sex.values, ax=ax_bar_sex)
+                    sns.despine(top=True, right=True)
                     st.pyplot(fig_bar_sex)
 
     # TAB 2: Interactive Dashboard 
