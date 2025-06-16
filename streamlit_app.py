@@ -4,20 +4,20 @@ import plotly.express as px
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-# Configuration 
-CORRECT_PASSWORD = "cancer2025"
+# === Configuration ===
+CORRECT_PASSWORD = "cancer25"
 
-# Session State Initialization 
+# === Session State Initialization ===
 if "authenticated" not in st.session_state:
     st.session_state.authenticated = False
 if "password_attempt" not in st.session_state:
     st.session_state.password_attempt = ""
 
-# Sidebar Login Logic 
+# === Sidebar Login Logic ===
 with st.sidebar:
-    st.image("IHME.webp", width=150)  
-
+    st.image("IHME.webp", width=150)
     st.title("🔒 Login")
+
     if st.session_state.authenticated:
         st.success("Access granted.")
         if st.button("Logout"):
@@ -34,39 +34,45 @@ with st.sidebar:
         elif st.session_state.password_attempt != "":
             st.error("Incorrect password")
 
-# Main App Content 
+# === Main App Content ===
 if st.session_state.authenticated:
-    # Header: title left, logo right
-    col1, col2 = st.columns([3, 1])
+    # === Sidebar: Metric Selection ===
+    st.sidebar.markdown("## 🧪 Select Metrics to Analyze")
+    selected_measures = st.sidebar.multiselect(
+        "Choose metrics to visualize:",
+        options=["Deaths", "Prevalence", "Incidence"],
+        default=["Deaths"]
+    )
 
+    # === Header: title left, logo right ===
+    col1, col2 = st.columns([3, 1])
     with col1:
         st.markdown("## 🧬 Lebanon Cancer Burden Dashboard")
         st.markdown("### Explore age, gender, and time trends of cancer mortality and incidence")
-
     with col2:
-        st.image("IHME.webp", width=120) 
+        st.image("IHME.webp", width=120)
 
     st.markdown("---")
 
-    # === Load dataset from repo ===
+    # === Load dataset ===
     df = pd.read_csv("cancer_lebanon.csv")
     st.success("Dataset loaded: cancer_lebanon.csv")
 
     # === Data Analysis Section ===
     st.markdown("## 📊 Data Analysis")
-    st.write("Explore distribution and burden of key health metrics (Deaths, Prevalence, Incidence) by age and sex.")
+    st.write("Explore distribution and burden of key health metrics by age and sex.")
 
-    relevant_measures = ["Deaths", "Prevalence", "Incidence"]
     year_min = int(df["year"].min())
     year_max = int(df["year"].max())
 
-    for measure in relevant_measures:
+    for measure in selected_measures:
         df_m = df[(df["measure"] == measure) & (df["metric"] == "Number")]
 
         if df_m.empty:
             st.warning(f"No data available for {measure}")
             continue
-        st.markdown(f"### 🧪 {measure} (Number) | {year_min}–{year_max}")
+
+        st.markdown(f"### 🧪 {measure} ({year_min}–{year_max})")
 
         # Boxplot by Age Group
         st.markdown(f"**Distribution of {measure} by Age Group ({year_min}–{year_max})**")
@@ -86,7 +92,7 @@ if st.session_state.authenticated:
         ax_sex.set_xlabel("Sex")
         st.pyplot(fig_sex)
 
-        # Heatmap (Age × Sex)
+        # Heatmap
         st.markdown(f"**Average {measure} by Age and Sex (Heatmap, {year_min}–{year_max})**")
         heatmap_data = df_m.pivot_table(index="age", columns="sex", values="val", aggfunc="mean")
         fig_heat, ax_heat = plt.subplots(figsize=(8, 5))
