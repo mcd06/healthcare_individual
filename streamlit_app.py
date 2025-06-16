@@ -67,11 +67,11 @@ if st.session_state.authenticated:
     else:
         selected_dash_metric = None
 
-   # === Header ===
-   st.markdown("## 🧬 Lebanon Cancer Burden Dashboard")
-   st.markdown(
-        "### Analyze cancer-related mortality, prevalence, and incidence trends across age groups, "
-        "genders, and time periods in Lebanon using visual and interactive tools."
+    # === Header ===
+    st.markdown("## 🧬 Lebanon Cancer Burden Dashboard")
+    st.markdown(
+         "### Analyze cancer-related mortality, prevalence, and incidence trends across age groups, "
+         "genders, and time periods in Lebanon using visual and interactive tools."
     )
     st.markdown("---")
 
