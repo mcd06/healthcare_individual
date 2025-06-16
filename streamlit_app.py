@@ -187,7 +187,7 @@ if st.session_state.authenticated:
                     color='age',
                     markers=False,
                     line_shape="linear",
-                    title=f"Time Trend of {selected_dash_measure} in {selected_dash_gender}s by Age Group",
+                    title=f"Time Trend of {selected_dash_measure} Among {selected_dash_gender}s by Age Group",
                     labels={
                         "val": f"{selected_dash_measure} ({metric_display_names[selected_dash_metric]})",
                         "year": "Year",
