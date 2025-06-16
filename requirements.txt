@@ -6,3 +6,5 @@ seaborn
 altair
 geopandas
 pydeck
+streamlit_authenticator
+PyYAML
