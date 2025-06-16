@@ -52,15 +52,14 @@ if st.session_state.authenticated:
     df = pd.read_csv("cancer_lebanon.csv")
     st.success("Dataset loaded: cancer_lebanon.csv")
 
-    st.markdown("## 📊 Data Analysis")
-    st.write("Explore distribution and burden of key health metrics by age and sex.")
+    # === Data Analysis Section ===
+st.markdown("## 📊 Data Analysis")
+st.write("Explore distribution and burden of key health metrics by age and sex.")
 
-    # Define measures to analyze
-    relevant_measures = ["Deaths", "Prevalence", "Incidence"]
+relevant_measures = ["Deaths", "Prevalence", "Incidence"]
 
-    # Loop through each measure
-    for measure in relevant_measures:
-        df_m = df[(df["measure"] == measure) & (df["metric"] == "Number")]
+for measure in relevant_measures:
+    df_m = df[(df["measure"] == measure) & (df["metric"] == "Number")]
 
     if df_m.empty:
         st.warning(f"No data available for {measure}")
@@ -68,21 +67,21 @@ if st.session_state.authenticated:
 
     st.markdown(f"### 🧪 {measure} (Metric: Number)")
 
-    # --- Boxplot by Age Group ---
+    # Boxplot by Age Group
     st.markdown("**Distribution by Age Group**")
     fig_age, ax_age = plt.subplots(figsize=(10, 4))
     sns.boxplot(data=df_m, x="age", y="val", ax=ax_age)
     ax_age.set_title(f"{measure} - Boxplot by Age")
     st.pyplot(fig_age)
 
-    # --- Boxplot by Sex ---
+    # Boxplot by Sex
     st.markdown("**Distribution by Sex**")
     fig_sex, ax_sex = plt.subplots(figsize=(6, 4))
     sns.boxplot(data=df_m, x="sex", y="val", ax=ax_sex)
     ax_sex.set_title(f"{measure} - Boxplot by Sex")
     st.pyplot(fig_sex)
 
-    # --- Heatmap (Average by Age × Sex) ---
+    # Heatmap (Age × Sex)
     st.markdown("**Average Value by Age and Sex (Heatmap)**")
     heatmap_data = df_m.pivot_table(index="age", columns="sex", values="val", aggfunc="mean")
     fig_heat, ax_heat = plt.subplots(figsize=(8, 5))
@@ -90,7 +89,7 @@ if st.session_state.authenticated:
     ax_heat.set_title(f"{measure} - Mean Values by Age and Sex")
     st.pyplot(fig_heat)
 
-    # --- Bar Chart: Total by Age Group ---
+    # Bar Chart: Total by Age
     st.markdown("**Total Value by Age Group**")
     bar_age = df_m.groupby("age")["val"].sum().sort_values(ascending=False)
     fig_bar_age, ax_bar_age = plt.subplots(figsize=(10, 4))
@@ -98,7 +97,7 @@ if st.session_state.authenticated:
     ax_bar_age.set_title(f"{measure} - Total by Age Group")
     st.pyplot(fig_bar_age)
 
-    # --- Bar Chart: Total by Sex ---
+    # Bar Chart: Total by Sex
     st.markdown("**Total Value by Sex**")
     bar_sex = df_m.groupby("sex")["val"].sum()
     fig_bar_sex, ax_bar_sex = plt.subplots(figsize=(5, 4))
