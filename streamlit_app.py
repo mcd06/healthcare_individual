@@ -5,7 +5,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 
 # Configuration 
-CORRECT_PASSWORD = "cancer25"
+CORRECT_PASSWORD = "cancer2025"
 
 # Session State Initialization 
 if "authenticated" not in st.session_state:
