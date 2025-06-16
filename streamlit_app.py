@@ -1,7 +1,7 @@
 import streamlit as st
 
-# === Configuration ===
-CORRECT_PASSWORD = "health2025"
+# === Use secure password from Streamlit Secrets ===
+CORRECT_PASSWORD = st.secrets["dashboard_password"]
 
 # === Session State Initialization ===
 if "authenticated" not in st.session_state:
@@ -35,9 +35,8 @@ if st.session_state.authenticated:
     st.markdown("### Explore age, gender, and time trends of cancer mortality and incidence")
     st.markdown("---")
 
-    # Placeholder for your visualizations
-    st.info("Upload cleaned data and add charts below this line.")
-    # e.g., st.line_chart(df)
+    # Add your visualizations and analysis here
+    st.info("🔍 Load your cleaned dataset and start building charts below.")
 
 else:
     st.warning("🔒 This cancer analytics dashboard is password-protected. Enter the correct password in the sidebar to access.")
