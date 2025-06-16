@@ -67,8 +67,9 @@ if st.session_state.authenticated:
         )
         with st.sidebar.expander("Dashboard Controls", expanded=True):
             existing_measures = list(df["measure"].unique())
-            if "Dally" not in existing_measures:
-                existing_measures.append("Dally")
+            dalys_label = "DALYs (Disability-Adjusted Life Years)"
+            if dalys_label not in existing_measures:
+                existing_measures.append(dalys_label)
             selected_dash_measure = st.selectbox("Choose Measure for Dashboard:", existing_measures)
             selected_dash_sex = st.selectbox("Select Gender:", df['sex'].unique())
             selected_dash_ages = st.multiselect("Select Age Group(s):", options=sorted_ages)
@@ -166,13 +167,15 @@ if st.session_state.authenticated:
                 if not filtered_df.empty:
                     fig = px.line(
                         filtered_df,
-                        x='year',
+                        x='Year',
                         y='val',
                         color='age',
                         markers=False,
                         line_shape="spline",
                         title=f"{selected_dash_metric} of {selected_dash_measure} ({selected_dash_sex}) by Age Group",
-                        labels={"val": selected_dash_metric}
+                        labels={
+                            "val": "Rate (per 100,000)" if selected_dash_metric == "Rate" else selected_dash_metric
+                        }
                     )
                     st.plotly_chart(fig, use_container_width=True)
                 else:
