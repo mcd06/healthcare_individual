@@ -174,7 +174,7 @@ if st.session_state.authenticated:
                 if not filtered_df.empty:
                     fig = px.line(
                         filtered_df,
-                        x='Year',
+                        x='year',
                         y='val',
                         color='age',
                         markers=False,
