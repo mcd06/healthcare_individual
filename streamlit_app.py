@@ -29,9 +29,7 @@ with st.sidebar:
         st.text_input("Password", type="password", key="password_attempt")
 
         if st.session_state.password_attempt == CORRECT_PASSWORD:
-            if st.session_state.password_attempt == CORRECT_PASSWORD:
-                st.session_state.authenticated = True
-                st.experimental_rerun()
+            st.session_state.authenticated = True
         elif st.session_state.password_attempt != "":
             st.error("Incorrect password")
 
