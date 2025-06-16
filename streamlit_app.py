@@ -48,7 +48,7 @@ if st.session_state.authenticated:
             st.markdown("### Visualizations")
             show_box_age = st.checkbox("Boxplot of Distribution by Age Group")
             show_box_sex = st.checkbox("Boxplot of Distribution by Gender")
-            show_heatmap = st.checkbox("Heatmap of Average by Age and Gender")
+            show_heatmap = st.checkbox("Heatmap of Mean by Age and Gender")
             show_bar_age = st.checkbox("Bar Chart of Total by Age Group")
             show_bar_sex = st.checkbox("Bar Chart of Total by Gender")
 
@@ -144,7 +144,7 @@ if st.session_state.authenticated:
                     st.pyplot(fig_heat)
 
                 if show_bar_age:
-                    st.markdown("**Total by Age Group**")
+                    st.markdown("**Sum by Age Group**")
                     bar_age = df_m.groupby("age")["val"].sum().reindex(sorted_ages)
                     fig_bar_age, ax_bar_age = plt.subplots(figsize=(10, 4))
                     sns.barplot(x=bar_age.index, y=bar_age.values, ax=ax_bar_age)
@@ -152,7 +152,7 @@ if st.session_state.authenticated:
                     st.pyplot(fig_bar_age)
 
                 if show_bar_sex:
-                    st.markdown("**Total by Gender**")
+                    st.markdown("**Sum by Gender**")
                     bar_sex = df_m.groupby("sex")["val"].sum()
                     fig_bar_sex, ax_bar_sex = plt.subplots(figsize=(5, 4))
                     sns.barplot(x=bar_sex.index, y=bar_sex.values, ax=ax_bar_sex)
@@ -180,7 +180,7 @@ if st.session_state.authenticated:
                         color='age',
                         markers=False,
                         line_shape="linear",
-                        title=f"Trend of {selected_dash_measure} – {selected_dash_sex} by Age Group [{metric_display_names[selected_dash_metric]}]",
+                        title=f"Trend of {selected_dash_measure} – {selected_dash_sex} by Age Group",
                         labels={"val": f"{metric_display_names[selected_dash_metric]}", "year": "Year", "age": "Age Group"}
                 )
                     st.plotly_chart(fig, use_container_width=True)
