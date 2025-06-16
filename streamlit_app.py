@@ -30,7 +30,7 @@ with st.sidebar:
 
         if st.session_state.password_attempt == CORRECT_PASSWORD:
             st.session_state.authenticated = True
-            st.experimental_rerun()
+            st.sidebar.success("Login successful. Please reload the page.")
         elif st.session_state.password_attempt != "":
             st.error("Incorrect password")
 
