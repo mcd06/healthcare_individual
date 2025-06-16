@@ -136,7 +136,7 @@ if st.session_state.authenticated:
                     st.pyplot(fig_sex)
 
                 if show_heatmap:
-                    st.markdown("**Average by Age and Gender**")
+                    st.markdown("**Mean by Age and Gender**")
                     heatmap_data = df_m.pivot_table(index="age", columns="sex", values="val", aggfunc="mean").reindex(index=sorted_ages)
                     fig_heat, ax_heat = plt.subplots(figsize=(8, 5))
                     sns.heatmap(heatmap_data, annot=True, fmt=".0f", cmap="YlOrRd", ax=ax_heat)
@@ -180,7 +180,7 @@ if st.session_state.authenticated:
                     color='age',
                     markers=False,
                     line_shape="linear",
-                    title=f"Trend of {selected_dash_measure} – {selected_dash_sex} by Age Group",
+                    title=f"Trend of {selected_dash_measure} – {selected_dash_sex} by Age Group and Year",
                     labels={"val": f"{metric_display_names[selected_dash_metric]}", "year": "Year", "age": "Age Group"}
                     )
                     st.plotly_chart(fig, use_container_width=True)
