@@ -128,6 +128,7 @@ if st.session_state.authenticated:
                     ax_age.set_xlabel("Age Group")
                     ax_age.set_ylabel(selected_measure)
                     sns.despine(top=True, right=True)
+                    st.pyplot(fig_age)
 
                 if show_box_gender:
                     st.markdown("**Distribution by Gender**")
@@ -136,10 +137,11 @@ if st.session_state.authenticated:
                     ax_gender.set_xlabel("Gender")
                     ax_gender.set_ylabel(selected_measure)
                     sns.despine(top=True, right=True)
+                    st.pyplot(fig_gender)
 
                 if show_heatmap:
                     st.markdown("**Mean by Age and Gender**")
-                    heatmap_data = df_m.pivot_table(index="age", columns="sex", values="val", aggfunc="mean").reindex(index=sorted_ages)
+                    heatmap_data = df_m.pivot_table(index="age", columns="gender", values="val", aggfunc="mean").reindex(index=sorted_ages)
                     fig_heat, ax_heat = plt.subplots(figsize=(8, 5))
                     sns.heatmap(heatmap_data, annot=True, fmt=".0f", cmap="YlOrRd", ax=ax_heat)
                     st.pyplot(fig_heat)
@@ -152,6 +154,7 @@ if st.session_state.authenticated:
                     ax_bar_age.set_xlabel("Age Group")
                     ax_bar_age.set_ylabel(f"Sum of {selected_measure}")
                     sns.despine(top=True, right=True)
+                    st.pyplot(fig_bar_age)
 
                 if show_bar_gender:
                     st.markdown("**Sum by Gender**")
@@ -161,6 +164,7 @@ if st.session_state.authenticated:
                     ax_bar_gender.set_xlabel("Gender")
                     ax_bar_gender.set_ylabel(f"Sum of {selected_measure}")
                     sns.despine(top=True, right=True)
+                    st.pyplot(fig_bar_gender)
 
     # TAB 2: Interactive Dashboard 
     if show_dashboard:
