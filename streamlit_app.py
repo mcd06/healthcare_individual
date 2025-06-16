@@ -38,7 +38,7 @@ if st.session_state.authenticated:
     sorted_ages = sorted(df["age"].unique(), key=lambda x: int(x.split('-')[0]) if '-' in x else (100 if '75+' in x else 0))
 
     # Sidebar Toggles 
-    st.sidebar.markdown("## 📊 Analysis Settings")
+    st.sidebar.markdown("## 📊 Data Analysis Configuration")
     show_analysis = st.sidebar.checkbox("Show Data Analysis") 
 
     if show_analysis:
@@ -53,7 +53,7 @@ if st.session_state.authenticated:
             show_bar_sex = st.checkbox("Bar Chart of Total by Gender")
 
     # Dashboard Section Header
-    st.sidebar.markdown("## 📈 Dashboard Settings")
+    st.sidebar.markdown("## 📈 Interactive Dashboard Setup")
     show_dashboard = st.sidebar.checkbox("Show Interactive Dashboard")
 
     if show_dashboard:
@@ -88,10 +88,11 @@ if st.session_state.authenticated:
             )
 
     # Header 
-    st.markdown("## 🧬 Lebanon Cancer Burden Dashboard")
+    st.markdown("## 🧬 Cancer Burden in Lebanon: Trends and Insights")
     st.markdown(
-        "Analyze cancer-related mortality, prevalence, and incidence trends across age groups, "
-        "genders, and time periods in Lebanon using visual and interactive tools."
+        "Explore trends in cancer-related indicators such as incidence, prevalence, and mortality "
+        "across different age groups and genders in Lebanon from 2000 to 2021. "
+        "Use the visual analysis and interactive tools to uncover patterns, disparities, and key insights."
     )
     st.markdown("---")
 
@@ -118,20 +119,20 @@ if st.session_state.authenticated:
             if df_m.empty:
                 st.warning(f"No data available for {selected_measure}")
             else:
-                st.markdown(f"### {selected_measure} ({year_min}–{year_max})")
+                st.markdown(f"### Overview of {selected_measure} Trends ({year_min}–{year_max})")
 
                 if show_box_age:
                     st.markdown("**Distribution by Age Group**")
                     fig_age, ax_age = plt.subplots(figsize=(10, 4))
                     sns.boxplot(data=df_m, x="age", y="val", order=sorted_ages, ax=ax_age)
-                    ax_age.set_title(f"Boxplot of {selected_measure} by Age Group ({year_min}–{year_max})")
+                    ax_age.set_title(f"Distribution of {selected_measure} Across Age Groups ({year_min}–{year_max})")
                     st.pyplot(fig_age)
 
                 if show_box_sex:
                     st.markdown("**Distribution by Gender**")
                     fig_sex, ax_sex = plt.subplots(figsize=(6, 4))
                     sns.boxplot(data=df_m, x="sex", y="val", ax=ax_sex)
-                    ax_sex.set_title(f"Boxplot of {selected_measure} by Sex ({year_min}–{year_max})")
+                    ax_sex.set_title(f"Distribution of {selected_measure} by Gender ({year_min}–{year_max})")
                     st.pyplot(fig_sex)
 
                 if show_heatmap:
@@ -139,7 +140,7 @@ if st.session_state.authenticated:
                     heatmap_data = df_m.pivot_table(index="age", columns="sex", values="val", aggfunc="mean").reindex(index=sorted_ages)
                     fig_heat, ax_heat = plt.subplots(figsize=(8, 5))
                     sns.heatmap(heatmap_data, annot=True, fmt=".0f", cmap="YlOrRd", ax=ax_heat)
-                    ax_heat.set_title(f"Heatmap of Average {selected_measure} by Age and Sex ({year_min}–{year_max})")
+                    ax_heat.set_title(f"Average {selected_measure} by Age and Gender (Heatmap) ({year_min}–{year_max})")
                     st.pyplot(fig_heat)
 
                 if show_bar_age:
@@ -147,7 +148,7 @@ if st.session_state.authenticated:
                     bar_age = df_m.groupby("age")["val"].sum().reindex(sorted_ages)
                     fig_bar_age, ax_bar_age = plt.subplots(figsize=(10, 4))
                     sns.barplot(x=bar_age.index, y=bar_age.values, ax=ax_bar_age)
-                    ax_bar_age.set_title(f"Total {selected_measure} by Age Group ({year_min}–{year_max})")
+                    ax_bar_age.set_title(f"Aggregate {selected_measure} Count by Age Group ({year_min}–{year_max})")
                     st.pyplot(fig_bar_age)
 
                 if show_bar_sex:
@@ -155,7 +156,7 @@ if st.session_state.authenticated:
                     bar_sex = df_m.groupby("sex")["val"].sum()
                     fig_bar_sex, ax_bar_sex = plt.subplots(figsize=(5, 4))
                     sns.barplot(x=bar_sex.index, y=bar_sex.values, ax=ax_bar_sex)
-                    ax_bar_sex.set_title(f"Total {selected_measure} by Sex ({year_min}–{year_max})")
+                    ax_bar_sex.set_title(f"Aggregate {selected_measure} Count by Gender ({year_min}–{year_max})")
                     st.pyplot(fig_bar_sex)
 
     # TAB 2: Interactive Dashboard 
@@ -179,10 +180,8 @@ if st.session_state.authenticated:
                         color='age',
                         markers=False,
                         line_shape="spline",
-                        title=f"{selected_dash_metric} of {selected_dash_measure} ({selected_dash_sex}) by Age Group",
-                        labels={
-                            "val": "Rate (per 100,000)" if selected_dash_metric == "Rate" else selected_dash_metric
-                        }
+                        title=f"Trend of {selected_dash_measure} ({selected_dash_sex}) by Age Group ({selected_dash_metric})",
+                        labels={"val": f"{selected_dash_measure} ({metric_display_names[selected_dash_metric]})"}
                     )
                     st.plotly_chart(fig, use_container_width=True)
                 else:
