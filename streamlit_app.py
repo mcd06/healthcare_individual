@@ -40,7 +40,7 @@ if st.session_state.authenticated:
         st.markdown("### Explore age, gender, and time trends of cancer mortality and incidence")
 
     with col2:
-        st.image("IHME.webp", width=120)  # ✅ Only visible in header after login
+        st.image("IHME.webp", width=120) 
 
     st.markdown("---")
 
