@@ -67,9 +67,6 @@ if st.session_state.authenticated:
         )
         with st.sidebar.expander("Dashboard Controls", expanded=True):
             existing_measures = list(df["measure"].unique())
-            dalys_label = "DALYs (Disability-Adjusted Life Years)"
-            if dalys_label not in existing_measures:
-                existing_measures.append(dalys_label)
             selected_dash_measure = st.selectbox("Choose Measure for Dashboard:", existing_measures)
             selected_dash_sex = st.selectbox("Select Gender:", df['sex'].unique())
             selected_dash_ages = st.multiselect("Select Age Group(s):", options=sorted_ages)
