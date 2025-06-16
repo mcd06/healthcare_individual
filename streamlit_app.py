@@ -4,16 +4,16 @@ import plotly.express as px
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-# === Configuration ===
+# Configuration
 CORRECT_PASSWORD = "cancer25"
 
-# === Session State Initialization ===
+# Session State Initialization 
 if "authenticated" not in st.session_state:
     st.session_state.authenticated = False
 if "password_attempt" not in st.session_state:
     st.session_state.password_attempt = ""
 
-# === Sidebar Login Logic ===
+# Sidebar Login Logic 
 with st.sidebar:
     st.image("IHME.webp", width=150)
     st.title("🔒 Login")
@@ -29,21 +29,22 @@ with st.sidebar:
         if st.session_state.password_attempt == CORRECT_PASSWORD:
             st.session_state.authenticated = True
 
-# === Main App Content ===
+# Main App Content 
 if st.session_state.authenticated:
-    # === Load Dataset ===
+    # Load Dataset
     df = pd.read_csv("cancer_lebanon.csv")
 
     # Sort age groups ascendingly
     sorted_ages = sorted(df["age"].unique(), key=lambda x: int(x.split('-')[0]) if '-' in x else (100 if '75+' in x else 0))
 
-    # === Sidebar Toggles ===
+    # Sidebar Toggles 
     st.sidebar.markdown("## 📊 Analysis Settings")
     show_analysis = st.sidebar.checkbox("Show Data Analysis") 
 
     if show_analysis:
         with st.sidebar.expander("Analysis Controls", expanded=True):
-            selected_measure = st.selectbox("Choose a measure to analyze:", ["Deaths", "Prevalence", "Incidence"])
+            analysis_measures = ["Incidence", "Prevalence", "Deaths"]
+            selected_measure = st.selectbox("Choose a measure to analyze:", analysis_measures)
             st.markdown("### Visualizations")
             show_box_age = st.checkbox("Boxplot of Distribution by Age Group")
             show_box_sex = st.checkbox("Boxplot of Distribution by Gender")
@@ -51,7 +52,7 @@ if st.session_state.authenticated:
             show_bar_age = st.checkbox("Bar Chart of Total by Age Group")
             show_bar_sex = st.checkbox("Bar Chart of Total by Gender")
 
-    # === Dashboard Section Header ===
+    # Dashboard Section Header
     st.sidebar.markdown("## 📈 Dashboard Settings")
     show_dashboard = st.sidebar.checkbox("Show Interactive Dashboard")
 
@@ -66,7 +67,17 @@ if st.session_state.authenticated:
             format_func=lambda x: metric_display_names[x]
         )
         with st.sidebar.expander("Dashboard Controls", expanded=True):
-            existing_measures = list(df["measure"].unique())
+            dashboard_order = [
+                "Incidence",
+                "Prevalence",
+                "Deaths",
+                "YLLs (Years of Life Lost)",
+                "YLDs (Years Lived with Disability)",
+                "DALYs (Disability-Adjusted Life Years)"
+            ]
+            actual_measures = list(df["measure"].unique())
+            final_order = [m for m in dashboard_order if m in actual_measures]
+            selected_dash_measure = st.selectbox("Choose Measure for Dashboard:", final_order)
             selected_dash_measure = st.selectbox("Choose Measure for Dashboard:", existing_measures)
             selected_dash_sex = st.selectbox("Select Gender:", df['sex'].unique())
             selected_dash_ages = st.multiselect("Select Age Group(s):", options=sorted_ages)
@@ -74,10 +85,10 @@ if st.session_state.authenticated:
                 "Select Year Range:",
                 min_value=int(df['year'].min()),
                 max_value=int(df['year'].max()),
-                value=(2000, 2021)
+                value=(2003, 2018)
             )
 
-    # === Header ===
+    # Header 
     st.markdown("## 🧬 Lebanon Cancer Burden Dashboard")
     st.markdown(
         "Analyze cancer-related mortality, prevalence, and incidence trends across age groups, "
@@ -85,11 +96,11 @@ if st.session_state.authenticated:
     )
     st.markdown("---")
 
-    # === Common Setup ===
+    # Common Setup
     year_min = int(df["year"].min())
     year_max = int(df["year"].max())
 
-    # === Tabs Layout ===
+    # Tabs Layout
     if show_analysis and show_dashboard:
         tab1, tab2 = st.tabs(["📊 Data Analysis", "📈 Interactive Dashboard"])
     elif show_analysis:
@@ -99,7 +110,7 @@ if st.session_state.authenticated:
     else:
         st.info("Please enable one or both views from the sidebar to continue.")
 
-    # === TAB 1: Data Analysis ===
+    # TAB 1: Data Analysis 
     if show_analysis:
         with tab1:
 
@@ -148,7 +159,7 @@ if st.session_state.authenticated:
                     ax_bar_sex.set_title(f"Total {selected_measure} by Sex ({year_min}–{year_max})")
                     st.pyplot(fig_bar_sex)
 
-    # === TAB 2: Interactive Dashboard ===
+    # TAB 2: Interactive Dashboard 
     if show_dashboard:
         with tab2:
 
