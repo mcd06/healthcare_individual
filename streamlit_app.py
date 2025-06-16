@@ -47,10 +47,10 @@ if st.session_state.authenticated:
             selected_measure = st.selectbox("Choose a measure to analyze:", analysis_measures)
             st.markdown("### Visualizations")
             show_box_age = st.checkbox("Boxplot of Distribution by Age Group")
-            show_box_sex = st.checkbox("Boxplot of Distribution by Gender")
+            show_box_gender = st.checkbox("Boxplot of Distribution by Gender")
             show_heatmap = st.checkbox("Heatmap of Mean by Age and Gender")
             show_bar_age = st.checkbox("Bar Chart of Sum by Age Group")
-            show_bar_sex = st.checkbox("Bar Chart of Sum by Gender")
+            show_bar_gender = st.checkbox("Bar Chart of Sum by Gender")
 
     # Dashboard Section Header
     st.sidebar.markdown("## 📈 Interactive Dashboard Setup")
@@ -78,7 +78,7 @@ if st.session_state.authenticated:
             actual_measures = list(df["measure"].unique())
             final_order = [m for m in dashboard_order if m in actual_measures]
             selected_dash_measure = st.selectbox("Choose Measure for Dashboard:", final_order)
-            selected_dash_sex = st.selectbox("Select Gender:", df['sex'].unique())
+            selected_dash_gender = st.selectbox("Select Gender:", df['gender'].unique())
             selected_dash_ages = st.multiselect("Select Age Group(s):", options=sorted_ages)
             selected_dash_years = st.slider(
                 "Select Year Range:",
@@ -128,16 +128,16 @@ if st.session_state.authenticated:
                     sns.despine(top=True, right=True)
                     st.pyplot(fig_age)
 
-                if show_box_sex:
+                if show_box_gender:
                     st.markdown("**Distribution by Gender**")
-                    fig_sex, ax_sex = plt.subplots(figsize=(6, 4))
-                    sns.boxplot(data=df_m, x="sex", y="val", ax=ax_sex)
+                    fig_gender, ax_gender = plt.subplots(figsize=(6, 4))
+                    sns.boxplot(data=df_m, x="gender", y="val", ax=ax_gender)
                     sns.despine(top=True, right=True)
-                    st.pyplot(fig_sex)
+                    st.pyplot(fig_gender)
 
                 if show_heatmap:
                     st.markdown("**Mean by Age and Gender**")
-                    heatmap_data = df_m.pivot_table(index="age", columns="sex", values="val", aggfunc="mean").reindex(index=sorted_ages)
+                    heatmap_data = df_m.pivot_table(index="age", columns="gender", values="val", aggfunc="mean").reindex(index=sorted_ages)
                     fig_heat, ax_heat = plt.subplots(figsize=(8, 5))
                     sns.heatmap(heatmap_data, annot=True, fmt=".0f", cmap="YlOrRd", ax=ax_heat)
                     sns.despine(top=True, right=True)
@@ -151,13 +151,13 @@ if st.session_state.authenticated:
                     sns.despine(top=True, right=True)
                     st.pyplot(fig_bar_age)
 
-                if show_bar_sex:
+                if show_bar_gender:
                     st.markdown("**Sum by Gender**")
-                    bar_sex = df_m.groupby("sex")["val"].sum()
-                    fig_bar_sex, ax_bar_sex = plt.subplots(figsize=(5, 4))
-                    sns.barplot(x=bar_sex.index, y=bar_sex.values, ax=ax_bar_sex)
+                    bar_gender = df_m.groupby("gender")["val"].sum()
+                    fig_bar_gender, ax_bar_gender = plt.subplots(figsize=(5, 4))
+                    sns.barplot(x=bar_gender.index, y=bar_gender.values, ax=ax_bar_gender)
                     sns.despine(top=True, right=True)
-                    st.pyplot(fig_bar_sex)
+                    st.pyplot(fig_bar_gender)
 
     # TAB 2: Interactive Dashboard 
     if show_dashboard:
@@ -167,7 +167,7 @@ if st.session_state.authenticated:
                 filtered_df = df[
                     (df['measure'] == selected_dash_measure) &
                     (df['metric'] == selected_dash_metric) &
-                    (df['sex'] == selected_dash_sex) &
+                    (df['gender'] == selected_dash_gender) &
                     (df['age'].isin(selected_dash_ages)) &
                     (df['year'].between(selected_dash_years[0], selected_dash_years[1]))
                 ]
@@ -180,7 +180,7 @@ if st.session_state.authenticated:
                     color='age',
                     markers=False,
                     line_shape="linear",
-                    title=f"Trend of {selected_dash_measure} – {selected_dash_sex} by Age Group and Year",
+                    title=f"Trend of {selected_dash_measure} – {selected_dash_gender} by Age Group and Year",
                     labels={"val": f"{metric_display_names[selected_dash_metric]}", "year": "Year", "age": "Age Group"}
                     )
                     st.plotly_chart(fig, use_container_width=True)
