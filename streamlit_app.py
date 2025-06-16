@@ -52,42 +52,71 @@ if st.session_state.authenticated:
     df = pd.read_csv("cancer_lebanon.csv")
     st.success("Dataset loaded: cancer_lebanon.csv")
 
-    # === SECTION 1: Data Analysis ===
-    st.markdown("## 📊 Data Analysis")
-    st.dataframe(df.head(10))
+    import matplotlib.pyplot as plt
+import seaborn as sns
 
-    st.markdown("### 🎯 Distribution of Values by Age Group")
-    fig1, ax1 = plt.subplots(figsize=(10, 4))
-    sns.boxplot(data=df[df['metric'] == "Number"], x="age", y="val", ax=ax1)
-    ax1.set_title("Distribution of Cancer Values by Age Group (Metric: Number)")
-    ax1.set_ylabel("Value")
-    ax1.set_xlabel("Age Group")
-    st.pyplot(fig1)
+st.markdown("## 📊 Data Analysis")
+st.write("Explore distribution and burden of key health metrics by age and sex.")
 
-    st.markdown("### 🎯 Distribution of Values by Sex")
-    fig2, ax2 = plt.subplots(figsize=(6, 4))
-    sns.boxplot(data=df[df['metric'] == "Number"], x="sex", y="val", ax=ax2)
-    ax2.set_title("Distribution of Cancer Values by Sex (Metric: Number)")
-    ax2.set_ylabel("Value")
-    ax2.set_xlabel("Sex")
-    st.pyplot(fig2)
+# Define measures to analyze
+relevant_measures = ["Deaths", "Prevalence", "Incidence"]
 
-    st.markdown("### 🔥 Heatmap of Average Number by Age and Sex")
-    heatmap_df = df[df['metric'] == "Number"].pivot_table(index='age', columns='sex', values='val', aggfunc='mean')
-    fig, ax = plt.subplots()
-    sns.heatmap(heatmap_df, annot=True, fmt=".1f", cmap="YlOrRd", ax=ax)
-    st.pyplot(fig)
+# Loop through each measure
+for measure in relevant_measures:
+    df_m = df[(df["measure"] == measure) & (df["metric"] == "Number")]
 
-    st.markdown("### 📈 Total Values Over Time by Sex (Number Only)")
-    pivot_time = df[df['metric'] == "Number"].pivot_table(index="year", columns="sex", values="val", aggfunc="sum")
-    st.line_chart(pivot_time)
+    if df_m.empty:
+        st.warning(f"No data available for {measure}")
+        continue
+
+    st.markdown(f"### 🧪 {measure} (Metric: Number)")
+
+    # --- Boxplot by Age Group ---
+    st.markdown("**Distribution by Age Group**")
+    fig_age, ax_age = plt.subplots(figsize=(10, 4))
+    sns.boxplot(data=df_m, x="age", y="val", ax=ax_age)
+    ax_age.set_title(f"{measure} - Boxplot by Age")
+    st.pyplot(fig_age)
+
+    # --- Boxplot by Sex ---
+    st.markdown("**Distribution by Sex**")
+    fig_sex, ax_sex = plt.subplots(figsize=(6, 4))
+    sns.boxplot(data=df_m, x="sex", y="val", ax=ax_sex)
+    ax_sex.set_title(f"{measure} - Boxplot by Sex")
+    st.pyplot(fig_sex)
+
+    # --- Heatmap (Average by Age × Sex) ---
+    st.markdown("**Average Value by Age and Sex (Heatmap)**")
+    heatmap_data = df_m.pivot_table(index="age", columns="sex", values="val", aggfunc="mean")
+    fig_heat, ax_heat = plt.subplots(figsize=(8, 5))
+    sns.heatmap(heatmap_data, annot=True, fmt=".0f", cmap="YlOrRd", ax=ax_heat)
+    ax_heat.set_title(f"{measure} - Mean Values by Age and Sex")
+    st.pyplot(fig_heat)
+
+    # --- Bar Chart: Total by Age Group ---
+    st.markdown("**Total Value by Age Group**")
+    bar_age = df_m.groupby("age")["val"].sum().sort_values(ascending=False)
+    fig_bar_age, ax_bar_age = plt.subplots(figsize=(10, 4))
+    sns.barplot(x=bar_age.index, y=bar_age.values, ax=ax_bar_age)
+    ax_bar_age.set_title(f"{measure} - Total by Age Group")
+    st.pyplot(fig_bar_age)
+
+    # --- Bar Chart: Total by Sex ---
+    st.markdown("**Total Value by Sex**")
+    bar_sex = df_m.groupby("sex")["val"].sum()
+    fig_bar_sex, ax_bar_sex = plt.subplots(figsize=(5, 4))
+    sns.barplot(x=bar_sex.index, y=bar_sex.values, ax=ax_bar_sex)
+    ax_bar_sex.set_title(f"{measure} - Total by Sex")
+    st.pyplot(fig_bar_sex)
+
+    st.markdown("---")
 
     # === SECTION 2: Interactive Dashboard ===
     st.markdown("## 📈 Interactive Dashboard")
     selected_measure = st.selectbox("Select Measure:", sorted(df['measure'].unique()))
     selected_metric = st.radio("Select Metric:", df['metric'].unique())
     selected_sex = st.selectbox("Select Sex:", df['sex'].unique())
-    selected_ages = st.multiselect("Select Age Group(s):", df['age'].unique(), default=df['age'].unique())
+    selected_ages = st.multiselect("Select Age Group(s):", options=df['age'].unique())
     selected_years = st.slider("Select Year Range:", min_value=int(df['year'].min()), max_value=int(df['year'].max()), value=(2005, 2021))
 
     # Filter dataset
