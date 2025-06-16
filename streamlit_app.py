@@ -29,17 +29,17 @@ with st.sidebar:
             st.experimental_rerun()
         elif st.session_state.password_attempt != "":
             st.error("Incorrect password")
-
+############
 # Main Dashboard Content
 if st.session_state.authenticated:
     st.image("https://cdn-icons-png.flaticon.com/512/2897/2897823.png", width=100)
     st.markdown("## Lebanon Cancer Burden Dashboard")
-    st.markdown("### Explore age, gender, and time trends of cancer mortality and incidence")
+    st.markdown("### Explore age and time trends of cancer mortality and incidence")
     st.markdown("---")
 
     # Add your data and visualizations below
     st.info("Upload cleaned data and add charts below this line.")
     # Example: st.line_chart(df)
-
+############
 else:
     st.warning("This cancer analytics dashboard is password-protected. Enter the correct password in the sidebar to access.")
