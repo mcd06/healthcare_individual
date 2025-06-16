@@ -1,7 +1,7 @@
 import streamlit as st
 
-# Configuration
-CORRECT_PASSWORD = "health2025"
+# Configuration 
+CORRECT_PASSWORD = "health25"
 
 # Session State Initialization
 if "authenticated" not in st.session_state:
@@ -9,8 +9,10 @@ if "authenticated" not in st.session_state:
 if "password_attempt" not in st.session_state:
     st.session_state.password_attempt = ""
 
-# Sidebar Login Logic
+# Sidebar Login Logic 
 with st.sidebar:
+    st.image("IHME.webp", width=150)  
+
     st.title("🔒 Login")
     if st.session_state.authenticated:
         st.success("Access granted.")
@@ -35,9 +37,9 @@ if st.session_state.authenticated:
     st.markdown("### Explore age, gender, and time trends of cancer mortality and incidence")
     st.markdown("---")
 
-    # Placeholder for your visualizations
+    # 👇 Add your data and visualizations below
     st.info("Upload cleaned data and add charts below this line.")
-    # e.g., st.line_chart(df)
+    # Example: st.line_chart(df)
 
 else:
     st.warning("🔒 This cancer analytics dashboard is password-protected. Enter the correct password in the sidebar to access.")
