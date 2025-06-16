@@ -34,14 +34,14 @@ if st.session_state.authenticated:
     col1, col2 = st.columns([3, 1])
     
     with col1:
-        st.markdown("## Lebanon Cancer Burden Dashboard")
+        st.markdown("## 🧬 Lebanon Cancer Burden Dashboard")
         st.markdown("### Explore age, gender, and time trends of cancer mortality and incidence")
     
     with col2:
-        st.image("IHME.webp", width=120) 
+        st.image("IHME.webp", width=120)
 
     st.markdown("---")
     st.info("Upload cleaned data and add charts below this line.")
 
 else:
-    st.warning("🔒 This cancer analytics dashboard is password-protected. Enter the correct password in the sidebar to access.")
+    st.warning("This cancer analytics dashboard is password-protected. Enter the correct password in the sidebar to access.")
