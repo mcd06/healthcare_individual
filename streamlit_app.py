@@ -1,15 +1,15 @@
 import streamlit as st
 
-# === Configuration ===
-CORRECT_PASSWORD = "cancer2025"
+# Configuration
+CORRECT_PASSWORD = "health2025"
 
-# === Session State Initialization ===
+# Session State Initialization
 if "authenticated" not in st.session_state:
     st.session_state.authenticated = False
 if "password_attempt" not in st.session_state:
     st.session_state.password_attempt = ""
 
-# === Sidebar Login Logic ===
+# Sidebar Login Logic
 with st.sidebar:
     st.title("🔒 Login")
     if st.session_state.authenticated:
@@ -28,7 +28,7 @@ with st.sidebar:
         elif st.session_state.password_attempt != "":
             st.error("Incorrect password")
 
-# === Main Dashboard Content ===
+# Main Dashboard Content
 if st.session_state.authenticated:
     st.image("https://cdn-icons-png.flaticon.com/512/2897/2897823.png", width=100)
     st.markdown("## 🧬 Lebanon Cancer Burden Dashboard")
