@@ -49,8 +49,8 @@ if st.session_state.authenticated:
             show_box_age = st.checkbox("Boxplot of Distribution by Age Group")
             show_box_sex = st.checkbox("Boxplot of Distribution by Gender")
             show_heatmap = st.checkbox("Heatmap of Mean by Age and Gender")
-            show_bar_age = st.checkbox("Bar Chart of Total by Age Group")
-            show_bar_sex = st.checkbox("Bar Chart of Total by Gender")
+            show_bar_age = st.checkbox("Bar Chart of Sum by Age Group")
+            show_bar_sex = st.checkbox("Bar Chart of Sum by Gender")
 
     # Dashboard Section Header
     st.sidebar.markdown("## 📈 Interactive Dashboard Setup")
@@ -140,7 +140,7 @@ if st.session_state.authenticated:
                     heatmap_data = df_m.pivot_table(index="age", columns="sex", values="val", aggfunc="mean").reindex(index=sorted_ages)
                     fig_heat, ax_heat = plt.subplots(figsize=(8, 5))
                     sns.heatmap(heatmap_data, annot=True, fmt=".0f", cmap="YlOrRd", ax=ax_heat)
-                    ax_heat.set_title(f"Average {selected_measure} by Age and Gender (Heatmap) ({year_min}–{year_max})")
+                    ax_heat.set_title(f"Mean {selected_measure} by Age and Gender (Heatmap) ({year_min}–{year_max})")
                     st.pyplot(fig_heat)
 
                 if show_bar_age:
@@ -148,7 +148,7 @@ if st.session_state.authenticated:
                     bar_age = df_m.groupby("age")["val"].sum().reindex(sorted_ages)
                     fig_bar_age, ax_bar_age = plt.subplots(figsize=(10, 4))
                     sns.barplot(x=bar_age.index, y=bar_age.values, ax=ax_bar_age)
-                    ax_bar_age.set_title(f"Aggregate {selected_measure} Count by Age Group ({year_min}–{year_max})")
+                    ax_bar_age.set_title(f"Sum of {selected_measure} by Age Group ({year_min}–{year_max})")
                     st.pyplot(fig_bar_age)
 
                 if show_bar_sex:
@@ -156,7 +156,7 @@ if st.session_state.authenticated:
                     bar_sex = df_m.groupby("sex")["val"].sum()
                     fig_bar_sex, ax_bar_sex = plt.subplots(figsize=(5, 4))
                     sns.barplot(x=bar_sex.index, y=bar_sex.values, ax=ax_bar_sex)
-                    ax_bar_sex.set_title(f"Aggregate {selected_measure} Count by Gender ({year_min}–{year_max})")
+                    ax_bar_sex.set_title(f"Sum of {selected_measure} by Gender ({year_min}–{year_max})")
                     st.pyplot(fig_bar_sex)
 
     # TAB 2: Interactive Dashboard 
@@ -174,15 +174,15 @@ if st.session_state.authenticated:
 
                 if not filtered_df.empty:
                     fig = px.line(
-                        filtered_df.sort_values("year"),
-                        x='year',
-                        y='val',
-                        color='age',
-                        markers=False,
-                        line_shape="linear",
-                        title=f"Trend of {selected_dash_measure} – {selected_dash_sex} by Age Group",
-                        labels={"val": f"{metric_display_names[selected_dash_metric]}", "year": "Year", "age": "Age Group"}
-                )
+                    filtered_df.sort_values("year"),
+                    x='year',
+                    y='val',
+                    color='age',
+                    markers=False,
+                    line_shape="linear",
+                    title=f"Trend of {selected_dash_measure} – {selected_dash_sex} by Age Group",
+                    labels={"val": f"{metric_display_names[selected_dash_metric]}", "year": "Year", "age": "Age Group"}
+                    )
                     st.plotly_chart(fig, use_container_width=True)
                 else:
                     st.warning("No data found for the selected filters.")
