@@ -50,10 +50,9 @@ if st.session_state.authenticated:
     import seaborn as sns
     import matplotlib.pyplot as plt
 
-    uploaded_file = st.file_uploader("/Users/mazen/Desktop/MSBA 382/Individual Project/cancer_lebanon.csv", type="csv")
-
-    if uploaded_file:
-        df = pd.read_csv(uploaded_file)
+     # === Load dataset from repo ===
+    df = pd.read_csv("cancer_lebanon.csv")
+    st.success("Dataset loaded: cancer_lebanon.csv"))
 
         # === SECTION 1: Data Analysis ===
         st.markdown("## 📊 Data Analysis")
