@@ -180,12 +180,8 @@ if st.session_state.authenticated:
                         color='age',
                         markers=False,
                         line_shape="linear",
-                        title=f"Trend of {selected_dash_measure} ({selected_dash_sex}) by Age Group ({metric_display_names[selected_dash_metric]})",
-                        labels={
-                            "val": f"{selected_dash_measure} ({metric_display_names[selected_dash_metric]})",
-                            "year": "Year",
-                            "age": "Age Group"
-                        }
+                        title=f"Trend of {selected_dash_measure} – {selected_dash_sex} by Age Group [{metric_display_names[selected_dash_metric]}]",
+                        labels={"val": f"{metric_display_names[selected_dash_metric]}", "year": "Year", "age": "Age Group"}
                 )
                     st.plotly_chart(fig, use_container_width=True)
                 else:
