@@ -60,7 +60,7 @@ if st.session_state.authenticated:
     year_min = int(df["year"].min())
     year_max = int(df["year"].max())
 
-     for measure in relevant_measures:
+    for measure in relevant_measures:
         df_m = df[(df["measure"] == measure) & (df["metric"] == "Number")]
 
         if df_m.empty:
