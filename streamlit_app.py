@@ -219,12 +219,10 @@ if st.session_state.authenticated:
                         yaxis=dict(showgrid=False),
                         hovermode="x unified"
                     )
-                    fig.update_traces(selector=dict(name='65-69'), line=dict(width=4, color='crimson'))
                     st.plotly_chart(fig, use_container_width=True)
                 else:
                     st.warning("No data found for the selected filters.")
             else:
-                st.info("Please select at least one age group to display results.")
-                
+                st.info("Please select at least one age group to display results.")           
 else:
     st.warning("🔒 This cancer analytics dashboard is password-protected. Enter the correct password in the sidebar to access.")
