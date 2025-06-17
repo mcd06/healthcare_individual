@@ -127,7 +127,7 @@ if st.session_state.authenticated:
                     sns.boxplot(data=df_m, x="age", y="val", order=sorted_ages, ax=ax_age)
                     ax_age.set_xlabel("Age Group")
                     ax_age.set_ylabel(selected_measure)
-                    ax_age.set_xticklabels(ax_age.get_xticklabels(), rotation=45, ha='right')
+                    ax_age.tick_params(axis='x', labelsize=9, rotation=30)
                     sns.despine(top=True, right=True)
                     st.pyplot(fig_age)
 
@@ -145,8 +145,7 @@ if st.session_state.authenticated:
                     heatmap_data = df_m.pivot_table(index="age", columns="gender", values="val", aggfunc="mean").reindex(index=sorted_ages)
                     fig_heat, ax_heat = plt.subplots(figsize=(6, 4))
                     sns.heatmap(heatmap_data, annot=True, fmt=".0f", cmap="YlGnBu", cbar=False, ax=ax_heat)
-                    ax_heat.set_xlabel("")
-                    ax_heat.set_ylabel("Age Group")
+                    ax_heat.set(xlabel=None, ylabel="Age Group")
                     sns.despine(top=True, right=True)
                     st.pyplot(fig_heat)
 
@@ -159,7 +158,7 @@ if st.session_state.authenticated:
                     ax_bar_age.set_ylabel(f"Sum of {selected_measure}")
                     ax_bar_age.set_xticklabels(ax_bar_age.get_xticklabels(), rotation=45, ha='right')
                     ax_bar_age.bar_label(ax_bar_age.containers[0], fmt='%.0f', label_type='edge', padding=2)
-                    ax_bar_age.grid(axis='y', linestyle='--', linewidth=0.4, alpha=0.3)
+                    ax_bar_age.grid(False) 
                     sns.despine(top=True, right=True)
                     st.pyplot(fig_bar_age)
 
@@ -223,6 +222,7 @@ if st.session_state.authenticated:
                 else:
                     st.warning("No data found for the selected filters.")
             else:
-                st.info("Please select at least one age group to display results.")           
+                st.info("Please select at least one age group to display results.")
+                
 else:
     st.warning("🔒 This cancer analytics dashboard is password-protected. Enter the correct password in the sidebar to access.")
