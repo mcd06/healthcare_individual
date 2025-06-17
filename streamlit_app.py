@@ -197,7 +197,7 @@ if st.session_state.authenticated:
                         category_orders={"age": sorted_ages},
                         title=f"Time Trend of {selected_dash_measure} Among {selected_dash_gender}s by Age Group",
                         labels={
-                            "val": f"{selected_dash_measure.split[0]} ({metric_display_names[selected_dash_metric]})",
+                            "val": f"{selected_dash_measure.split()[0]} ({metric_display_names[selected_dash_metric]})",
                             "year": "Year",
                             "age": "Age Group"
                         },
