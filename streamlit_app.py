@@ -197,7 +197,7 @@ if st.session_state.authenticated:
                         category_orders={"age": sorted_ages},
                         title=f"Time Trend of {selected_dash_measure} Among {selected_dash_gender}s by Age Group",
                         labels={
-                            "val": f"{selected_dash_measure} ({metric_display_names[selected_dash_metric]})",
+                            "val": f"{selected_dash_measure.split[0]} ({metric_display_names[selected_dash_metric]})",
                             "year": "Year",
                             "age": "Age Group"
                         },
@@ -214,6 +214,7 @@ if st.session_state.authenticated:
                         xaxis=dict(showgrid=False),
                         yaxis=dict(showgrid=False),
                         hovermode="closest"
+                        legend=dict(orientation="h", yanchor="bottom", y=-0.3, xanchor="center", x=0.5)
                     )
                     st.plotly_chart(fig, use_container_width=True)
                 else:
