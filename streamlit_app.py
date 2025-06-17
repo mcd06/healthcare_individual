@@ -3,6 +3,8 @@ import pandas as pd
 import plotly.express as px
 import seaborn as sns
 import matplotlib.pyplot as plt
+seaborn_palette = ['#66C2A5', '#FC8D62', '#8DA0CB', '#E78AC3', '#A6D854']
+sns.set_palette(seaborn_palette)
 
 # Configuration
 CORRECT_PASSWORD = "cancer25"
@@ -190,7 +192,6 @@ if st.session_state.authenticated:
                         x='year',
                         y='val',
                         color='age',
-                        color_discrete_sequence=plotly_colors,
                         markers=False,
                         line_shape="linear",
                         category_orders={"age": sorted_ages},
