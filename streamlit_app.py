@@ -3,11 +3,6 @@ import pandas as pd
 import plotly.express as px
 import seaborn as sns
 import matplotlib.pyplot as plt
-seaborn_palette = [
-    '#66C2A5', '#FC8D62', '#8DA0CB', '#E78AC3', '#A6D854',
-    '#FFD92F', '#E5C494', '#B3B3B3', '#A6CEE3', '#B2DF8A'
-]
-plotly_colors = seaborn_palette
 
 # Configuration
 CORRECT_PASSWORD = "cancer25"
