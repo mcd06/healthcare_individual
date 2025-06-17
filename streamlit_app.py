@@ -127,6 +127,7 @@ if st.session_state.authenticated:
                     sns.boxplot(data=df_m, x="age", y="val", order=sorted_ages, ax=ax_age)
                     ax_age.set_xlabel("Age Group")
                     ax_age.set_ylabel(selected_measure)
+                    ax_age.set_xticklabels(ax_age.get_xticklabels(), rotation=45, ha='right')
                     sns.despine(top=True, right=True)
                     st.pyplot(fig_age)
 
@@ -156,6 +157,7 @@ if st.session_state.authenticated:
                     sns.barplot(x=bar_age.index, y=bar_age.values, ax=ax_bar_age)
                     ax_bar_age.set_xlabel("Age Group")
                     ax_bar_age.set_ylabel(f"Sum of {selected_measure}")
+                    ax_bar_age.set_xticklabels(ax_bar_age.get_xticklabels(), rotation=45, ha='right')
                     ax_bar_age.bar_label(ax_bar_age.containers[0], fmt='%.0f', label_type='edge', padding=2)
                     ax_bar_age.grid(axis='y', linestyle='--', linewidth=0.4, alpha=0.3)
                     sns.despine(top=True, right=True)
@@ -202,16 +204,17 @@ if st.session_state.authenticated:
                         }
                     )
                     fig.update_layout(
+                        title_font_size=18,
                         showlegend=True,
                         plot_bgcolor='white',
                         xaxis=dict(showgrid=False),
                         yaxis=dict(showgrid=False)
                     )
+                    fig.update_traces(selector=dict(name='65-69'), line=dict(width=4, color='crimson'))
                     st.plotly_chart(fig, use_container_width=True)
                 else:
                     st.warning("No data found for the selected filters.")
             else:
                 st.info("Please select at least one age group to display results.")
-
 else:
     st.warning("🔒 This cancer analytics dashboard is password-protected. Enter the correct password in the sidebar to access.")
