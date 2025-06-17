@@ -185,28 +185,28 @@ if st.session_state.authenticated:
                     (df['age'].isin(selected_dash_ages)) &
                     (df['year'].between(selected_dash_years[0], selected_dash_years[1]))
                 ]
-
-                fig = px.line(
-                    filtered_df.sort_values("year"),
-                    x='year',
-                    y='val',
-                    color='age',
-                    markers=False,
-                    line_shape="linear",
-                    title=f"Time Trend of {selected_dash_measure} Among {selected_dash_gender}s by Age Group",
-                    labels={
-                        "val": f"{selected_dash_measure} ({metric_display_names[selected_dash_metric]})",
-                        "year": "Year",
-                        "age": "Age Group"
-                    }
-                )
-                fig.update_layout(
-                    showlegend=True,
-                    plot_bgcolor='white',
-                    xaxis=dict(showgrid=False),
-                    yaxis=dict(showgrid=False)
-                )
-                st.plotly_chart(fig, use_container_width=True)
+                if not filtered_df.empty:
+                    fig = px.line(
+                        filtered_df.sort_values("year"),
+                        x='year',
+                        y='val',
+                        color='age',
+                        markers=False,
+                        line_shape="linear",
+                        title=f"Time Trend of {selected_dash_measure} Among {selected_dash_gender}s by Age Group",
+                        labels={
+                            "val": f"{selected_dash_measure} ({metric_display_names[selected_dash_metric]})",
+                            "year": "Year",
+                            "age": "Age Group"
+                        }
+                    )
+                    fig.update_layout(
+                        showlegend=True,
+                        plot_bgcolor='white',
+                        xaxis=dict(showgrid=False),
+                        yaxis=dict(showgrid=False)
+                    )
+                    st.plotly_chart(fig, use_container_width=True)
                 else:
                     st.warning("No data found for the selected filters.")
             else:
