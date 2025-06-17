@@ -213,7 +213,7 @@ if st.session_state.authenticated:
                         plot_bgcolor='white',
                         xaxis=dict(showgrid=False),
                         yaxis=dict(showgrid=False),
-                        hovermode="closest",
+                        hovermode="x unified",
                         legend=dict(orientation="h", yanchor="bottom", y=-0.3, xanchor="center", x=0.5)
                     )
                     st.plotly_chart(fig, use_container_width=True)
