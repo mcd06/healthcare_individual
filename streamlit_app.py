@@ -3,6 +3,9 @@ import pandas as pd
 import plotly.express as px
 import seaborn as sns
 import matplotlib.pyplot as plt
+seaborn_palette = ['#66C2A5', '#FC8D62', '#8DA0CB', '#E78AC3', '#A6D854']
+plotly_colors = ['#66C2A5', '#FC8D62', '#8DA0CB', '#E78AC3', '#A6D854']
+sns.set_palette(seaborn_palette)
 
 # Configuration
 CORRECT_PASSWORD = "cancer25"
@@ -192,6 +195,7 @@ if st.session_state.authenticated:
                         x='year',
                         y='val',
                         color='age',
+                        color_discrete_sequence=plotly_colors,
                         markers=False,
                         line_shape="linear",
                         category_orders={"age": sorted_ages},
@@ -214,13 +218,11 @@ if st.session_state.authenticated:
                         xaxis=dict(showgrid=False),
                         yaxis=dict(showgrid=False),
                         hovermode="x unified",
-                        legend=dict(orientation="h", yanchor="bottom", y=-0.3, xanchor="center", x=0.5)
                     )
                     st.plotly_chart(fig, use_container_width=True)
                 else:
                     st.warning("No data found for the selected filters.")
             else:
-                st.info("Please select at least one age group to display results.")
-                
+                st.info("Please select at least one age group to display results.")       
 else:
     st.warning("🔒 This cancer analytics dashboard is password-protected. Enter the correct password in the sidebar to access.")
