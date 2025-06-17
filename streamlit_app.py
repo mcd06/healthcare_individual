@@ -202,12 +202,9 @@ if st.session_state.authenticated:
                             "age": "Age Group"
                         },
                         hover_data={
-                            "year": True,
+                            "year": False,
                             "age": True,
-                            "val": ':.0f',
-                            "gender": False,
-                            "measure": False,
-                            "metric": False
+                            "val": ':.0f'
                         }
                     )
                     fig.update_layout(
