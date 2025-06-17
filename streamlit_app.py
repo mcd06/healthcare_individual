@@ -201,6 +201,14 @@ if st.session_state.authenticated:
                             "val": f"{selected_dash_measure} ({metric_display_names[selected_dash_metric]})",
                             "year": "Year",
                             "age": "Age Group"
+                        },
+                        hover_data={
+                            "year": True,
+                            "age": True,
+                            "val": ':.0f',
+                            "gender": False,
+                            "measure": False,
+                            "metric": False
                         }
                     )
                     fig.update_layout(
@@ -208,7 +216,8 @@ if st.session_state.authenticated:
                         showlegend=True,
                         plot_bgcolor='white',
                         xaxis=dict(showgrid=False),
-                        yaxis=dict(showgrid=False)
+                        yaxis=dict(showgrid=False),
+                        hovermode="x unified"
                     )
                     fig.update_traces(selector=dict(name='65-69'), line=dict(width=4, color='crimson'))
                     st.plotly_chart(fig, use_container_width=True)
@@ -216,5 +225,6 @@ if st.session_state.authenticated:
                     st.warning("No data found for the selected filters.")
             else:
                 st.info("Please select at least one age group to display results.")
+                
 else:
     st.warning("🔒 This cancer analytics dashboard is password-protected. Enter the correct password in the sidebar to access.")
