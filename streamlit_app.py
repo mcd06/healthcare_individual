@@ -2,22 +2,22 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 
-# Configuration 
+# Configuration
 CORRECT_PASSWORD = "cancer25"
 st.set_page_config(layout="wide", page_title="Cancer Burden in Lebanon", page_icon="🧬")
 
-# Color Palette 
+# Color Palette
 seaborn_palette = ['#66C2A5', '#FC8D62', '#8DA0CB', '#E78AC3', '#A6D854']
 gender_colors = {"Male": seaborn_palette[0], "Female": seaborn_palette[1]}
 sorted_ages = ["15-19 years", "20-54 years", "55-59 years", "60-64 years", "65-74 years"]
 
-# Session State Initialization 
+# Session State Initialization
 if "authenticated" not in st.session_state:
     st.session_state.authenticated = False
 if "password_attempt" not in st.session_state:
     st.session_state.password_attempt = ""
 
-# Sidebar Login 
+# Sidebar Login
 with st.sidebar:
     st.image("IHME.webp", width=150)
     st.title("🔒 Login")
@@ -33,11 +33,16 @@ with st.sidebar:
             st.session_state.authenticated = True
             st.rerun()
 
-# Main Content 
+# Main Content
 if st.session_state.authenticated:
     df = pd.read_csv("cancer_lebanon.csv")
     df = df[df["age"] != "All ages"]
     df["year"] = pd.to_numeric(df["year"], errors="coerce")
+
+    # Sidebar year slider
+    min_year = int(df["year"].min())
+    max_year = int(df["year"].max())
+    selected_years = st.sidebar.slider("Select Year Range", min_year, max_year, (min_year, max_year))
 
     st.markdown("## 🧬 Cancer Burden in Lebanon: Multi-Dimensional Dashboard")
     st.markdown("Explore Lebanon's cancer burden across gender, age, time, and metrics with interactive 2D insights.")
@@ -48,13 +53,17 @@ if st.session_state.authenticated:
 
     def render_dashboard(measure, metric, tab):
         label_y = f"{measure} ({metric})"
-        filtered_df = df[(df["measure"] == measure) & (df["metric"] == metric)]
+        filtered_df = df[
+            (df["measure"] == measure) &
+            (df["metric"] == metric) &
+            (df["year"].between(selected_years[0], selected_years[1]))
+        ]
         if filtered_df.empty:
             tab.warning("No data available.")
             return
 
         with tab:
-            # KPI Metrics 
+            # KPI Metrics
             total_val = filtered_df["val"].sum()
             latest_df = filtered_df[filtered_df["year"] == filtered_df["year"].max()]
             male_val = latest_df[latest_df["gender"] == "Male"]["val"].sum()
@@ -80,13 +89,13 @@ if st.session_state.authenticated:
             fig_box = px.box(
                 filtered_df,
                 x="age", y="val",
-                color="age",
                 category_orders={"age": sorted_ages},
+                color="age",
                 color_discrete_sequence=seaborn_palette,
                 title="Distribution of Values by Age Group",
                 labels={"age": "Age Group", "val": label_y}
             )
-            fig_box.update_layout(height=260, title_x=0.0)
+            fig_box.update_layout(height=260, title_x=0.0, showlegend=False)
             r1c2.plotly_chart(fig_box, use_container_width=True)
 
             trend_df = (
@@ -122,7 +131,7 @@ if st.session_state.authenticated:
 
             st.markdown("---")
 
-            # Row 2: Pie | Scatter | Stacked Bar 
+            # Row 2: Pie | Scatter | Stacked Bar
             r2c1, r2c2, r2c3 = st.columns(3)
 
             gender_sum = filtered_df.groupby("gender")["val"].sum()
