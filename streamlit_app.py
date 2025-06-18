@@ -37,7 +37,8 @@ if st.session_state.authenticated:
     df = pd.read_csv("cancer_lebanon.csv")
 
     # Sort age groups ascendingly
-    sorted_ages = sorted(df["age"].unique(), key=lambda x: int(x.split('-')[0]) if '-' in x else (100 if '75+' in x else 0))
+    valid_ages = ["15-19", "20-54", "55-59", "60-64"]
+    sorted_ages = valid_ages
 
     # Sidebar Toggles 
     st.sidebar.markdown("## 📊 Data Analysis Configuration")
