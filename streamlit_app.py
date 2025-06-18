@@ -8,7 +8,6 @@ st.set_page_config(layout="wide", page_title="Cancer Burden in Lebanon", page_ic
 
 # --- Color Palette ---
 seaborn_palette = ['#66C2A5', '#FC8D62', '#8DA0CB', '#E78AC3', '#A6D854']
-heatmap_colors = ['#66C2A5', '#FC8D62']  # green to orange
 
 # --- Session State ---
 if "authenticated" not in st.session_state:
@@ -70,14 +69,14 @@ if st.session_state.authenticated:
             # --- Row 1: Heatmap | Stacked Bar | Line Chart ---
             r1c1, r1c2, r1c3 = st.columns(3)
 
-            heatmap_data = filtered_df.pivot_table(
+            heat_df = filtered_df.pivot_table(
                 index="age", columns="year", values="val", aggfunc="sum"
             ).reindex(index=sorted_ages)
 
             fig_heat = px.imshow(
-                heatmap_data,
+                heat_df,
                 labels={"x": "Year", "y": "Age Group", "color": label_y},
-                color_continuous_scale=heatmap_colors
+                color_continuous_scale="YlOrRd"
             )
             fig_heat.update_layout(
                 title="Cancer Burden by Age and Year",
@@ -139,7 +138,7 @@ if st.session_state.authenticated:
             # ━━ Divider
             st.markdown("---")
 
-            # --- Row 2: Pie | Scatter Plot | Box Plot ---
+            # --- Row 2: Pie | 2D Scatter | Box Plot ---
             r2c1, r2c2, r2c3 = st.columns(3)
 
             gender_sum = filtered_df.groupby("gender")["val"].sum()
@@ -158,14 +157,19 @@ if st.session_state.authenticated:
             fig_pie.update_layout(height=260, title_font_size=16, title_x=0.0)
             r2c1.plotly_chart(fig_pie, use_container_width=True)
 
-            # Scatter Plot: Time vs Gender with value as point size
+            # Scatter Plot
             fig_scatter = px.scatter(
                 filtered_df,
-                x="year", y="gender",
-                size="val",
+                x="year", y="val",
                 color="gender",
-                title="Incidence Over Time by Gender (Point Size = Burden)",
-                labels={"year": "Year", "gender": "Gender", "val": label_y},
+                symbol="age",
+                title=f"Scatter Plot: {measure} by Year and Gender",
+                labels={
+                    "year": "Year",
+                    "val": label_y,
+                    "gender": "Gender",
+                    "age": "Age Group"
+                },
                 color_discrete_map=gender_colors
             )
             fig_scatter.update_layout(
