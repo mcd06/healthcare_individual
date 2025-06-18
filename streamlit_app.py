@@ -69,10 +69,13 @@ if st.session_state.authenticated:
             st.warning("No data available.")
             return
 
+        # Choose correct aggregation
+        agg_func = "mean" if metric == "Rate" else "sum"
+
         # Row 1: Heatmap | Bar Chart | Line Chart
         r1c1, r1c2, r1c3 = st.columns(3)
 
-        heat_df = filtered_df.pivot_table(index="age", columns="year", values="val", aggfunc="sum").reindex(index=sorted_ages)
+        heat_df = filtered_df.pivot_table(index="age", columns="year", values="val", aggfunc=agg_func).reindex(index=sorted_ages)
         fig_heat = px.imshow(
             heat_df,
             labels={"x": "Year", "y": "Age Group", "color": label_y},
@@ -81,12 +84,12 @@ if st.session_state.authenticated:
         fig_heat.update_layout(title="Cancer Burden by Age and Year", title_font=dict(size=18), title_x=0.0, height=260, margin=dict(t=50, b=10))
         r1c1.plotly_chart(fig_heat, use_container_width=True)
 
-        bar_age = filtered_df.groupby("age")["val"].sum().reindex(index=sorted_ages)
+        bar_age = filtered_df.groupby("age")["val"].agg(agg_func).reindex(index=sorted_ages)
         fig_bar = px.bar(
             x=bar_age.index,
             y=bar_age.values,
             color=bar_age.index,
-            title="Total Values by Age Group",
+            title=f"{agg_func.capitalize()} Values by Age Group",
             labels={"x": "Age Group", "y": label_y},
             color_discrete_sequence=seaborn_palette
         )
@@ -96,7 +99,7 @@ if st.session_state.authenticated:
         trend_df = (
             filtered_df[filtered_df["age"].isin(sorted_ages)]
             .groupby(["year", "age"], as_index=False)["val"]
-            .sum()
+            .agg(agg_func)
         )
         fig_line = px.line(
             trend_df,
@@ -105,7 +108,7 @@ if st.session_state.authenticated:
             color_discrete_sequence=seaborn_palette,
             title=f"Time Trend of {measure} by Age Group",
             labels={"year": "Year", "val": label_y, "age": "Age Group"},
-            hover_data={"year": True, "age": True, "val": ':.0f'}
+            hover_data={"year": True, "age": True, "val": ':.1f' if metric == "Rate" else ':.0f'}
         )
         fig_line.update_layout(
             height=260,
@@ -123,11 +126,11 @@ if st.session_state.authenticated:
         # Row 2: Pie | Scatter | Stacked Bar
         r2c1, r2c2, r2c3 = st.columns(3)
 
-        gender_sum = filtered_df.groupby("gender")["val"].sum()
+        gender_sum = filtered_df.groupby("gender")["val"].agg(agg_func)
         fig_pie = px.pie(
             values=gender_sum.values,
             names=gender_sum.index,
-            title="Total Distribution by Gender",
+            title=f"{agg_func.capitalize()} Distribution by Gender",
             color=gender_sum.index,
             color_discrete_map=gender_colors
         )
@@ -135,27 +138,27 @@ if st.session_state.authenticated:
         fig_pie.update_layout(height=260, title_font_size=16, title_x=0.0)
         r2c1.plotly_chart(fig_pie, use_container_width=True)
 
-        scatter_df = filtered_df.groupby(["year", "gender"], as_index=False)["val"].sum()
+        scatter_df = filtered_df.groupby(["year", "gender"], as_index=False)["val"].agg(agg_func)
         fig_scatter = px.scatter(
             scatter_df,
             x="year", y="val",
             color="gender",
             color_discrete_map=gender_colors,
-            title=f"Gender-wise Total {measure} per Year",
+            title=f"Gender-wise {agg_func.capitalize()} {measure} per Year",
             labels={"year": "Year", "val": label_y, "gender": "Gender"}
         )
         fig_scatter.update_traces(mode="markers", marker=dict(size=4, opacity=0.85, line=dict(width=0.4, color="gray")))
         fig_scatter.update_layout(height=260, title_font_size=16, title_x=0.0, plot_bgcolor='white', xaxis=dict(showgrid=False), yaxis=dict(showgrid=False), hovermode="closest")
         r2c2.plotly_chart(fig_scatter, use_container_width=True)
 
-        bar_df = filtered_df.groupby(["age", "gender"])["val"].sum().reset_index()
+        bar_df = filtered_df.groupby(["age", "gender"])["val"].agg(agg_func).reset_index()
         fig_stack = px.bar(
             bar_df,
             x="age", y="val", color="gender",
             barmode="stack",
             color_discrete_map=gender_colors,
             category_orders={"age": sorted_ages},
-            title="Distribution by Age and Gender",
+            title=f"{agg_func.capitalize()} by Age and Gender",
             labels={"age": "Age Group", "val": label_y}
         )
         fig_stack.update_layout(height=260, title_x=0.0)
