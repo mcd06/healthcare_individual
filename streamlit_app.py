@@ -99,7 +99,7 @@ if st.session_state.authenticated:
             fig_line = px.line(
                 line_df,
                 x="year", y="val", color="age",
-                title=f"{measure} Over Time by Age Group",
+                title=f"Time Trend of {measure} by Age Group",
                 markers=False,
                 line_shape="linear",
                 category_orders={"age": sorted_ages},
@@ -108,12 +108,14 @@ if st.session_state.authenticated:
                 color_discrete_sequence=seaborn_palette
             )
             fig_line.update_layout(
-                height=260,
+                title_font_size=18,
                 title_x=0.0,
+                showlegend=True,
                 plot_bgcolor='white',
                 xaxis=dict(showgrid=False),
-                yaxis=dict(showgrid=False, rangemode="tozero"),
-                hovermode="closest",
+                yaxis=dict(showgrid=False),
+                hovermode="x unified",
+                height=260,
                 margin=dict(t=30, b=10)
             )
             r1c3.plotly_chart(fig_line, use_container_width=True)
@@ -145,17 +147,22 @@ if st.session_state.authenticated:
             cohort_df["Cohort"] = cohort_df["gender"] + " " + cohort_df["age"]
 
             fig_cohort = px.line(
-                cohort_df,
+                cohort_df.sort_values("year"),
                 x="year", y="val", color="Cohort",
                 title="Cohort Comparison: Trends Over Time",
                 labels={"val": f"{measure} ({metric})", "year": "Year"},
-                color_discrete_sequence=seaborn_palette
+                color_discrete_sequence=seaborn_palette,
+                hover_data={"year": False, "Cohort": True, "val": ':.0f'}
             )
             fig_cohort.update_layout(
-                height=260,
+                title_font_size=18,
                 title_x=0.0,
-                yaxis=dict(rangemode="tozero"),
-                hovermode="closest"
+                showlegend=True,
+                plot_bgcolor='white',
+                xaxis=dict(showgrid=False),
+                yaxis=dict(showgrid=False),
+                hovermode="closest",
+                height=260
             )
             r2c2.plotly_chart(fig_cohort, use_container_width=True)
 
