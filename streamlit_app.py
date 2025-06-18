@@ -37,8 +37,8 @@ if st.session_state.authenticated:
 
     # --- Tabs Setup ---
     st.markdown("## 🧬 Cancer Burden in Lebanon Dashboard")
-    st.markdown("Explore cancer incidence and mortality by number and rate, gender, and age groups (2000–2020).")
-    tab1, tab2, tab3, tab4 = st.tabs(["📈 Number by Incidence", "📉 Number by Death", "📈 Rate by Incidence", "📉 Rate by Death"])
+    st.markdown("Explore cancer incidence and mortality in Lebanon by number and rate, gender, and age groups (2000–2020).")
+    tab1, tab2, tab3, tab4 = st.tabs(["Number by Incidence", "Number by Death", "Rate by Incidence", "Rate by Death"])
     
     def render_dashboard(measure, metric, tab):
         filtered_df = df[(df["measure"] == measure) & (df["metric"] == metric)]
