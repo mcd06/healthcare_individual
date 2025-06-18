@@ -34,6 +34,8 @@ with st.sidebar:
 if st.session_state.authenticated:
     df = pd.read_csv("cancer_lebanon.csv")
     df = df[df["age"] != "All ages"]
+    df["year"] = pd.to_numeric(df["year"], errors="coerce")  # Ensure year is numeric
+
     sorted_ages = ["15-19 years", "20-54 years", "55-59 years", "60-64 years", "65-74 years"]
     gender_colors = {"Male": seaborn_palette[0], "Female": seaborn_palette[1]}
 
@@ -103,7 +105,11 @@ if st.session_state.authenticated:
                 markers=False,
                 line_shape="linear",
                 category_orders={"age": sorted_ages},
-                labels={"val": f"{measure} ({metric})", "year": "Year", "age": "Age Group"},
+                labels={
+                    "val": f"{measure} ({metric})",
+                    "year": "Year",
+                    "age": "Age Group"
+                },
                 hover_data={"year": False, "age": True, "val": ':.0f'},
                 color_discrete_sequence=seaborn_palette
             )
@@ -134,7 +140,11 @@ if st.session_state.authenticated:
                 color=gender_sum.index,
                 color_discrete_map=gender_colors
             )
-            fig_pie.update_traces(textinfo="percent+label", pull=[0.03, 0.03])
+            fig_pie.update_traces(
+                textinfo="percent+label",
+                textposition="outside",
+                pull=[0.03, 0.03]
+            )
             fig_pie.update_layout(height=260, title_font_size=16, title_x=0.0)
             r2c1.plotly_chart(fig_pie, use_container_width=True)
 
@@ -150,7 +160,11 @@ if st.session_state.authenticated:
                 cohort_df.sort_values("year"),
                 x="year", y="val", color="Cohort",
                 title="Cohort Comparison: Trends Over Time",
-                labels={"val": f"{measure} ({metric})", "year": "Year"},
+                labels={
+                    "val": f"{measure} ({metric})",
+                    "year": "Year",
+                    "Cohort": "Cohort Group"
+                },
                 color_discrete_sequence=seaborn_palette,
                 hover_data={"year": False, "Cohort": True, "val": ':.0f'}
             )
@@ -171,7 +185,7 @@ if st.session_state.authenticated:
                 x="age", y="val",
                 category_orders={"age": sorted_ages},
                 title="Distribution of Values by Age Group",
-                color_discrete_sequence=[seaborn_palette[4]]  # light green
+                color_discrete_sequence=[seaborn_palette[0]]  # darker green
             )
             fig_box.update_layout(height=260, title_x=0.0)
             r2c3.plotly_chart(fig_box, use_container_width=True)
