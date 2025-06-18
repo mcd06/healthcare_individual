@@ -32,14 +32,18 @@ if st.session_state.authenticated:
     df = pd.read_csv("cancer_lebanon.csv")
     df = df[df["age"] != "All ages"]
     sorted_ages = ["15-19 years", "20-54 years", "55-59 years", "60-64 years", "65-74 years"]
-    years = sorted(df["year"].unique())
     gender_colors = {"Male": "#66C2A5", "Female": "#FC8D62"}
 
     # --- Tabs Setup ---
     st.markdown("## 🧬 Cancer Burden in Lebanon Dashboard")
     st.markdown("Explore cancer incidence and mortality in Lebanon by number and rate, gender, and age groups (2000–2020).")
-    tab1, tab2, tab3, tab4 = st.tabs(["Number by Incidence", "Number by Death", "Rate by Incidence", "Rate by Death"])
-    
+    tab1, tab2, tab3, tab4 = st.tabs([
+        "Number by Incidence",
+        "Number by Death",
+        "Rate by Incidence",
+        "Rate by Death"
+    ])
+
     def render_dashboard(measure, metric, tab):
         filtered_df = df[(df["measure"] == measure) & (df["metric"] == metric)]
         if filtered_df.empty:
@@ -47,7 +51,19 @@ if st.session_state.authenticated:
             return
 
         with tab:
-            st.markdown(f"### {measure} – {metric}")
+            # --- KPI Section ---
+            total_val = filtered_df["val"].sum()
+            latest_year = filtered_df["year"].max()
+            latest_df = filtered_df[filtered_df["year"] == latest_year]
+            male_val = latest_df[latest_df["gender"] == "Male"]["val"].sum()
+            female_val = latest_df[latest_df["gender"] == "Female"]["val"].sum()
+
+            kpi1, kpi2, kpi3 = st.columns(3)
+            kpi1.metric(f"Total {measure} ({metric})", f"{int(total_val):,}")
+            kpi2.metric("Latest Male Cases", f"{int(male_val):,}")
+            kpi3.metric("Latest Female Cases", f"{int(female_val):,}")
+
+            # --- Charts Section ---
             col1, col2 = st.columns(2)
 
             # Pie Chart by Gender
@@ -82,9 +98,22 @@ if st.session_state.authenticated:
             )
             st.plotly_chart(fig_line, use_container_width=True)
 
+            # Optional: About Section
+            with st.expander("ℹ️ About this Dashboard"):
+                st.markdown("""
+                **Data Source:** IHME - Global Burden of Disease  
+                **Definitions:**  
+                - **Number:** Raw count of cases  
+                - **Rate:** Age-standardized rate per 100,000 population  
+                - **Incidence:** New cases within the year  
+                - **Deaths:** Mortality count attributed to cancer  
+                """)
+
+    # Render each tab
     render_dashboard("Incidence", "Number", tab1)
     render_dashboard("Deaths", "Number", tab2)
     render_dashboard("Incidence", "Rate", tab3)
     render_dashboard("Deaths", "Rate", tab4)
+
 else:
     st.warning("🔒 This cancer analytics dashboard is password-protected. Enter the correct password in the sidebar to access.")
