@@ -157,7 +157,6 @@ if st.session_state.authenticated:
             fig_pie.update_layout(height=260, title_font_size=16, title_x=0.0)
             r2c1.plotly_chart(fig_pie, use_container_width=True)
 
-            # ✅ Scatter Plot (Points per Gender per Year)
             scatter_df = filtered_df.groupby(["year", "gender"], as_index=False)["val"].sum()
             fig_scatter = px.scatter(
                 scatter_df,
