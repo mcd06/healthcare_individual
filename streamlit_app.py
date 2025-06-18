@@ -172,7 +172,7 @@ if st.session_state.authenticated:
             )
             fig_scatter.update_traces(
                 mode="markers",
-                marker=dict(size=8, opacity=0.8, line=dict(width=0.5, color='gray'))
+                marker=dict(size=4, opacity=0.8, line=dict(width=0.5, color='gray'))
             )
             fig_scatter.update_layout(
                 height=260,
