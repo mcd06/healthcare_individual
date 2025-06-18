@@ -95,7 +95,6 @@ if st.session_state.authenticated:
                 category_orders={"age": sorted_ages},
                 barmode="stack",
                 color_discrete_map=gender_colors,
-                fig_scatter.update_traces(marker=dict(size=7, opacity=0.9, line=dict(width=0.5, color='DarkSlateGrey')))
                 labels={"age": "Age Group", "val": label_y}
             )
             fig_stack.update_layout(height=260, title_x=0.0)
@@ -158,7 +157,6 @@ if st.session_state.authenticated:
             fig_pie.update_layout(height=260, title_font_size=16, title_x=0.0)
             r2c1.plotly_chart(fig_pie, use_container_width=True)
 
-            # Scatter Plot
             fig_scatter = px.scatter(
                 filtered_df,
                 x="year", y="val",
@@ -172,6 +170,9 @@ if st.session_state.authenticated:
                     "age": "Age Group"
                 },
                 color_discrete_map=gender_colors
+            )
+            fig_scatter.update_traces(
+                marker=dict(size=7, opacity=0.9, line=dict(width=0.5, color='DarkSlateGrey'))
             )
             fig_scatter.update_layout(
                 height=260,
