@@ -4,7 +4,12 @@ import plotly.express as px
 
 # Configuration
 CORRECT_PASSWORD = "cancer25"
-st.set_page_config(layout="wide", page_title="Cancer Burden in Lebanon", page_icon="🧬")
+st.set_page_config(layout="wide", page_title="Cancer Burden in Lebanon", page_icon="🧬")st.set_page_config(
+    layout="wide",
+    page_title="Cancer Burden in Lebanon",
+    page_icon="🧬",
+    initial_sidebar_state="expanded"
+)
 
 # Color Palette
 seaborn_palette = ['#66C2A5', '#FC8D62', '#8DA0CB', '#E78AC3', '#A6D854']
