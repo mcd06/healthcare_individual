@@ -72,7 +72,7 @@ if st.session_state.authenticated:
                 color_continuous_scale="YlOrRd"
             )
             fig_heat.update_layout(
-                title="Heatmap: Age × Year",
+                title="Heatmap of Total Cancer Burden by Age and Year",
                 title_x=0.5,
                 height=260,
                 margin=dict(t=40, b=10)
