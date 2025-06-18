@@ -37,7 +37,7 @@ if st.session_state.authenticated:
     df = pd.read_csv("cancer_lebanon.csv")
 
     # Sort age groups ascendingly
-    valid_ages = ["15-19", "20-54", "55-59", "60-64"]
+    valid_ages = ["15-19", "20-54", "55-59", "60-64", "65-74"]
     sorted_ages = valid_ages
 
     # Sidebar Toggles 
