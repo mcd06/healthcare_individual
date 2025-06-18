@@ -52,9 +52,13 @@ if st.session_state.authenticated:
             year_max = d["year"].max()
             total = int(d["val"].sum())
 
-            # fixed boolean filtering
-            male_val = int(d[(d["gender"] == "Male") & (d["year"] == year_max)]["val"].sum())
-            female_val = int(d[(d["gender"] == "Female") & (d["year"] == year_max)]["val"].sum())
+            # fixed boolean filtering with proper parentheses
+            male_val = int(
+                d[(d["gender"] == "Male") & (d["year"] == year_max)]["val"].sum()
+            )
+            female_val = int(
+                d[(d["gender"] == "Female") & (d["year"] == year_max)]["val"].sum()
+            )
 
             c1, c2, c3 = st.columns(3)
             c1.metric(f"Total {measure} ({metric})", f"{total:,}")
@@ -65,10 +69,13 @@ if st.session_state.authenticated:
             r1, r2, r3 = st.columns(3)
 
             # Heatmap
-            hm = d.pivot(index="age", columns="year", values="val").reindex(index=ages)
+            hm = (
+                d.pivot(index="age", columns="year", values="val")
+                .reindex(index=ages)
+            )
             fig_h = px.imshow(
                 hm,
-                labels={"x":"Year", "y":"Age", "color":"Value"},
+                labels={"x": "Year", "y": "Age", "color": "Value"},
                 color_continuous_scale="YlOrRd"
             )
             fig_h.update_layout(
@@ -79,9 +86,10 @@ if st.session_state.authenticated:
             r1.plotly_chart(fig_h, use_container_width=True)
 
             # Stacked bar
-            sb = d.groupby(["age","gender"])["val"].sum().reset_index()
+            sb = d.groupby(["age", "gender"])["val"].sum().reset_index()
             fig_s = px.bar(
-                sb, x="age", y="val", color="gender",
+                sb,
+                x="age", y="val", color="gender",
                 barmode="stack",
                 category_orders={"age": ages},
                 color_discrete_map=gender_colors
@@ -95,11 +103,12 @@ if st.session_state.authenticated:
             # Line chart
             ld = d[d["age"].isin(ages)].sort_values("year")
             fig_l = px.line(
-                ld, x="year", y="val", color="age",
+                ld,
+                x="year", y="val", color="age",
                 line_shape="linear", markers=False,
                 category_orders={"age": ages},
                 color_discrete_sequence=palette,
-                labels={"val":f"{measure} ({metric})", "year":"Year", "age":"Age"}
+                labels={"val": f"{measure} ({metric})", "year": "Year", "age": "Age"}
             )
             fig_l.update_layout(
                 height=260,
@@ -133,7 +142,7 @@ if st.session_state.authenticated:
             ag = d.groupby("age")["val"].sum().reindex(ages)
             fig_a = px.bar(
                 x=ag.index, y=ag.values,
-                labels={"x":"Age", "y":"Total"},
+                labels={"x": "Age", "y": "Total"},
                 color_discrete_sequence=[palette[1]]
             )
             fig_a.update_layout(
@@ -144,7 +153,8 @@ if st.session_state.authenticated:
 
             # Box plot
             fig_b = px.box(
-                d, x="age", y="val",
+                d,
+                x="age", y="val",
                 category_orders={"age": ages},
                 color_discrete_sequence=[palette[4]]
             )
@@ -155,9 +165,9 @@ if st.session_state.authenticated:
             p3.plotly_chart(fig_b, use_container_width=True)
 
     render("Incidence", "Number", tabs[0])
-    render("Deaths",    "Number", tabs[1])
-    render("Incidence", "Rate",   tabs[2])
-    render("Deaths",    "Rate",   tabs[3])
+    render("Deaths", "Number", tabs[1])
+    render("Incidence", "Rate", tabs[2])
+    render("Deaths", "Rate", tabs[3])
 
 else:
     st.warning("🔒 This dashboard is password-protected. Please login to continue.")
