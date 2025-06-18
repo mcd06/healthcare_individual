@@ -175,4 +175,5 @@ if st.session_state.authenticated:
 
 else:
     st.warning("🔒 This cancer analytics dashboard is password-protected. Enter the correct password in the sidebar to access.")
+    st.markdown(" ")  
     st.image("image.png", use_container_width=True)
