@@ -77,7 +77,7 @@ if st.session_state.authenticated:
             fig_heat.update_layout(
                 title="Cancer Burden Heatmap (Age × Year) – Total Cases",
                 title_font=dict(size=18),
-                title_x=0.5,
+                title_x=0.0,
                 height=260,
                 margin=dict(t=50, b=10)
             )
@@ -92,7 +92,7 @@ if st.session_state.authenticated:
                 barmode="stack",
                 color_discrete_map=gender_colors
             )
-            fig_stack.update_layout(height=260, title_x=0.5)
+            fig_stack.update_layout(height=260, title_x=0.0)
             r1c2.plotly_chart(fig_stack, use_container_width=True)
 
             line_df = filtered_df[filtered_df["age"].isin(sorted_ages)].sort_values("year")
@@ -109,10 +109,10 @@ if st.session_state.authenticated:
             )
             fig_line.update_layout(
                 height=260,
-                title_x=0.5,
+                title_x=0.0,
                 plot_bgcolor='white',
                 xaxis=dict(showgrid=False),
-                yaxis=dict(showgrid=False),
+                yaxis=dict(showgrid=False, rangemode='tozero'),  # ⬅ smooth range
                 hovermode="closest",
                 margin=dict(t=30, b=10)
             )
@@ -121,7 +121,7 @@ if st.session_state.authenticated:
             # ━━ Divider
             st.markdown("---")
 
-            # --- Row 2: Pie | Age Bar | Box Plot ---
+            # --- Row 2: Pie | Cohort Comparison | Box Plot ---
             r2c1, r2c2, r2c3 = st.columns(3)
 
             gender_sum = filtered_df.groupby("gender")["val"].sum()
@@ -133,19 +133,32 @@ if st.session_state.authenticated:
                 color_discrete_map=gender_colors
             )
             fig_pie.update_traces(textinfo="percent+label", pull=[0.03, 0.03])
-            fig_pie.update_layout(height=260, title_font_size=16, title_x=0.5)
+            fig_pie.update_layout(height=260, title_font_size=16, title_x=0.0)
             r2c1.plotly_chart(fig_pie, use_container_width=True)
 
-            age_sum = filtered_df.groupby("age")["val"].sum().reindex(sorted_ages)
-            fig_age = px.bar(
-                x=age_sum.index,
-                y=age_sum.values,
-                labels={"x": "Age Group", "y": "Total"},
-                title="Total Burden by Age Group",
-                color_discrete_sequence=[seaborn_palette[1]]  # orange
+            # ✅ Cohort Comparison Line Plot (replaces age bar chart)
+            cohorts = [
+                ("Male", "65-74 years"),
+                ("Female", "60-64 years"),
+                ("Male", "20-54 years")
+            ]
+            cohort_df = filtered_df[filtered_df[["gender", "age"]].apply(tuple, axis=1).isin(cohorts)]
+            cohort_df["Cohort"] = cohort_df["gender"] + " " + cohort_df["age"]
+
+            fig_cohort = px.line(
+                cohort_df,
+                x="year", y="val", color="Cohort",
+                title="Cohort Comparison: Trends Over Time",
+                labels={"val": f"{measure} ({metric})", "year": "Year"},
+                color_discrete_sequence=seaborn_palette
             )
-            fig_age.update_layout(height=260, title_x=0.5)
-            r2c2.plotly_chart(fig_age, use_container_width=True)
+            fig_cohort.update_layout(
+                height=260,
+                title_x=0.0,
+                yaxis=dict(rangemode="tozero"),
+                hovermode="closest"
+            )
+            r2c2.plotly_chart(fig_cohort, use_container_width=True)
 
             fig_box = px.box(
                 filtered_df,
@@ -154,7 +167,7 @@ if st.session_state.authenticated:
                 title="Distribution of Values by Age Group",
                 color_discrete_sequence=[seaborn_palette[4]]  # light green
             )
-            fig_box.update_layout(height=260, title_x=0.5)
+            fig_box.update_layout(height=260, title_x=0.0)
             r2c3.plotly_chart(fig_box, use_container_width=True)
 
     # Render dashboards for all tabs
