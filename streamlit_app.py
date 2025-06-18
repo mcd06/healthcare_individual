@@ -69,7 +69,7 @@ if st.session_state.authenticated:
             st.warning("No data available.")
             return
 
-        # Row 1: Heatmap | Box Plot | Line Chart
+        # Row 1: Heatmap | Bar Chart | Line Chart
         r1c1, r1c2, r1c3 = st.columns(3)
 
         heat_df = filtered_df.pivot_table(index="age", columns="year", values="val", aggfunc="sum").reindex(index=sorted_ages)
@@ -81,23 +81,22 @@ if st.session_state.authenticated:
         fig_heat.update_layout(title="Cancer Burden by Age and Year", title_font=dict(size=18), title_x=0.0, height=260, margin=dict(t=50, b=10))
         r1c1.plotly_chart(fig_heat, use_container_width=True)
 
-        fig_box = px.box(
-            filtered_df,
-            x="age", y="val",
-            category_orders={"age": sorted_ages},
-            color="age",
-            color_discrete_sequence=seaborn_palette,
-            title="Distribution of Values by Age Group",
-            labels={"age": "Age Group", "val": label_y}
+        bar_age = filtered_df.groupby("age")["val"].sum().reindex(index=sorted_ages)
+        fig_bar = px.bar(
+            x=bar_age.index,
+            y=bar_age.values,
+            color=bar_age.index,
+            title="Total Values by Age Group",
+            labels={"x": "Age Group", "y": label_y},
+            color_discrete_sequence=seaborn_palette
         )
-        fig_box.update_layout(height=260, title_x=0.0, showlegend=False)
-        r1c2.plotly_chart(fig_box, use_container_width=True)
+        fig_bar.update_layout(height=260, title_x=0.0, showlegend=False)
+        r1c2.plotly_chart(fig_bar, use_container_width=True)
 
         trend_df = (
             filtered_df[filtered_df["age"].isin(sorted_ages)]
             .groupby(["year", "age"], as_index=False)["val"]
             .sum()
-            .reset_index(drop=True)
         )
         fig_line = px.line(
             trend_df,
@@ -156,7 +155,7 @@ if st.session_state.authenticated:
             barmode="stack",
             color_discrete_map=gender_colors,
             category_orders={"age": sorted_ages},
-            title="20-Year Distribution by Age and Gender",
+            title="Distribution by Age and Gender",
             labels={"age": "Age Group", "val": label_y}
         )
         fig_stack.update_layout(height=260, title_x=0.0)
