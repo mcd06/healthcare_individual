@@ -1,221 +1,90 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-import seaborn as sns
-import matplotlib.pyplot as plt
-seaborn_palette = ['#66C2A5', '#FC8D62', '#8DA0CB', '#E78AC3', '#A6D854']
-sns.set_palette(seaborn_palette)
 
-# Configuration
+# --- Configuration ---
 CORRECT_PASSWORD = "cancer25"
+st.set_page_config(layout="wide", page_title="Cancer Dashboard", page_icon="🧬")
 
-# Session State Initialization 
+# --- Session State Initialization ---
 if "authenticated" not in st.session_state:
     st.session_state.authenticated = False
 if "password_attempt" not in st.session_state:
     st.session_state.password_attempt = ""
 
-# Sidebar Login Logic 
+# --- Sidebar Login ---
 with st.sidebar:
     st.image("IHME.webp", width=150)
     st.title("🔒 Login")
-
     if st.session_state.authenticated:
         if st.button("Logout"):
             st.session_state.authenticated = False
             st.session_state.password_attempt = ""
             st.rerun()
     else:
-        st.text("Please enter the password")
+        st.text("Enter password to access the dashboard")
         st.text_input("Password", type="password", key="password_attempt")
         if st.session_state.password_attempt == CORRECT_PASSWORD:
             st.session_state.authenticated = True
 
-# Main App Content 
+# --- Main Content ---
 if st.session_state.authenticated:
-    # Load Dataset
     df = pd.read_csv("cancer_lebanon.csv")
+    df = df[df["age"] != "All ages"]
+    sorted_ages = ["15-19 years", "20-54 years", "55-59 years", "60-64 years", "65-74 years"]
+    years = sorted(df["year"].unique())
+    gender_colors = {"Male": "#66C2A5", "Female": "#FC8D62"}
 
-    # Sort age groups ascendingly
-    valid_ages = ["15-19 years", "20-54 years", "55-59 years", "60-64 years", "65-74 years"]
-    sorted_ages = valid_ages
+    # --- Tabs Setup ---
+    st.markdown("## 🧬 Cancer Burden in Lebanon Dashboard")
+    st.markdown("Explore cancer incidence and mortality by number and rate, gender, and age groups (2000–2020).")
+    tab1, tab2, tab3, tab4 = st.tabs(["📈 Number by Incidence", "📉 Number by Death", "📈 Rate by Incidence", "📉 Rate by Death"])
+    
+    def render_dashboard(measure, metric, tab):
+        filtered_df = df[(df["measure"] == measure) & (df["metric"] == metric)]
+        if filtered_df.empty:
+            tab.warning("No data available.")
+            return
 
-    # Sidebar Toggles 
-    st.sidebar.markdown("## 📊 Data Analysis Configuration")
-    show_analysis = st.sidebar.checkbox("Show Data Analysis") 
+        with tab:
+            st.markdown(f"### {measure} – {metric}")
+            col1, col2 = st.columns(2)
 
-    if show_analysis:
-        with st.sidebar.expander("Analysis Controls", expanded=True):
-            analysis_measures = ["Incidence", "Deaths"]
-            selected_measure = st.selectbox("Choose a measure to analyze:", analysis_measures)
-            st.markdown("### Visualizations")
-            show_box_age = st.checkbox("Boxplot of Distribution by Age Group")
-            show_box_gender = st.checkbox("Boxplot of Distribution by Gender")
-            show_heatmap = st.checkbox("Heatmap of Mean by Age and Gender")
-            show_bar_age = st.checkbox("Bar Chart of Sum by Age Group")
-            show_bar_gender = st.checkbox("Bar Chart of Sum by Gender")
-
-    # Dashboard Section Header
-    st.sidebar.markdown("## 📈 Interactive Dashboard Setup")
-    show_dashboard = st.sidebar.checkbox("Show Interactive Dashboard")
-
-    if show_dashboard:
-        metric_display_names = {
-            "Number": "Number",
-            "Rate": "Rate (per 100,000)"
-        }
-        selected_dash_metric = st.sidebar.radio(
-            "Select Metric:",
-            options=list(metric_display_names.keys()),
-            format_func=lambda x: metric_display_names[x]
-        )
-        with st.sidebar.expander("Dashboard Controls", expanded=True):
-            dashboard_order = [
-                "Incidence",
-                "Deaths"
-            ]
-            actual_measures = list(df["measure"].unique())
-            final_order = [m for m in dashboard_order if m in actual_measures]
-            selected_dash_measure = st.selectbox("Choose Measure for Dashboard:", final_order)
-            selected_dash_gender = st.selectbox("Select Gender:", df['gender'].unique())
-            selected_dash_ages = st.multiselect("Select Age Group(s):", options=sorted_ages)
-            selected_dash_years = st.slider(
-                "Select Year Range:",
-                min_value=int(df['year'].min()),
-                max_value=int(df['year'].max()),
-                value=(2003, 2018)
+            # Pie Chart by Gender
+            gender_sum = filtered_df.groupby("gender")["val"].sum()
+            fig_gender = px.pie(
+                values=gender_sum.values,
+                names=gender_sum.index,
+                title="Distribution by Gender",
+                color=gender_sum.index,
+                color_discrete_map=gender_colors
             )
+            col1.plotly_chart(fig_gender, use_container_width=True)
 
-    # Header 
-    st.markdown("## 🧬 Cancer Burden in Lebanon: Trends and Insights")
-    st.markdown(
-        "Explore trends in cancer-related indicators such as incidence and mortality "
-        "across different age groups and genders in Lebanon from 2000 to 2020. "
-        "Use the visual analysis and interactive tools to uncover patterns, disparities, and key insights."
-    )
-    st.markdown("---")
+            # Bar Chart by Age Group
+            age_sum = filtered_df.groupby("age")["val"].sum().reindex(sorted_ages)
+            fig_age = px.bar(
+                x=age_sum.index,
+                y=age_sum.values,
+                labels={"x": "Age Group", "y": "Total"},
+                title="Distribution by Age Group",
+                color_discrete_sequence=["#8DA0CB"]
+            )
+            col2.plotly_chart(fig_age, use_container_width=True)
 
-    # Common Setup
-    year_min = int(df["year"].min())
-    year_max = int(df["year"].max())
+            # Line Chart Over Time by Age
+            fig_line = px.line(
+                filtered_df[filtered_df["age"].isin(sorted_ages)],
+                x="year", y="val", color="age",
+                title=f"{measure} Over Time by Age Group",
+                category_orders={"age": sorted_ages},
+                markers=True
+            )
+            st.plotly_chart(fig_line, use_container_width=True)
 
-    # Tabs Layout
-    if show_analysis and show_dashboard:
-        tab1, tab2 = st.tabs(["📊 Data Analysis", "📈 Interactive Dashboard"])
-    elif show_analysis:
-        tab1 = st.tabs(["📊 Data Analysis"])[0]
-    elif show_dashboard:
-        tab2 = st.tabs(["📈 Interactive Dashboard"])[0]
-    else:
-        st.info("Please enable one or both views from the sidebar to continue.")
-
-    # TAB 1: Data Analysis 
-    if show_analysis:
-        with tab1:
-
-            df_m = df[(df["measure"] == selected_measure) & (df["metric"] == "Number")]
-
-            if df_m.empty:
-                st.warning(f"No data available for {selected_measure}")
-            else:
-                st.markdown(f"### Overview of {selected_measure} Trends ({year_min}–{year_max})")
-
-                if show_box_age:
-                    st.markdown("**Distribution by Age Group**")
-                    fig_age, ax_age = plt.subplots(figsize=(8, 4))
-                    sns.boxplot(data=df_m, x="age", y="val", order=sorted_ages, ax=ax_age)
-                    ax_age.set_xlabel("Age Group")
-                    ax_age.set_ylabel(selected_measure)
-                    ax_age.tick_params(axis='x', labelsize=9, rotation=30)
-                    sns.despine(top=True, right=True)
-                    st.pyplot(fig_age)
-
-                if show_box_gender:
-                    st.markdown("**Distribution by Gender**")
-                    fig_gender, ax_gender = plt.subplots(figsize=(5, 4))
-                    sns.boxplot(data=df_m, x="gender", y="val", ax=ax_gender)
-                    ax_gender.set_xlabel("Gender")
-                    ax_gender.set_ylabel(selected_measure)
-                    sns.despine(top=True, right=True)
-                    st.pyplot(fig_gender)
-
-                if show_heatmap:
-                    st.markdown("**Mean by Age and Gender**")
-                    heatmap_data = df_m.pivot_table(index="age", columns="gender", values="val", aggfunc="mean").reindex(index=sorted_ages)
-                    fig_heat, ax_heat = plt.subplots(figsize=(6, 4))
-                    sns.heatmap(heatmap_data, annot=True, fmt=".0f", cmap="YlGnBu", cbar=False, ax=ax_heat)
-                    ax_heat.set(xlabel=None, ylabel="Age Group")
-                    sns.despine(top=True, right=True)
-                    st.pyplot(fig_heat)
-
-                if show_bar_age:
-                    st.markdown("**Sum by Age Group**")
-                    bar_age = df_m.groupby("age")["val"].sum().reindex(sorted_ages)
-                    fig_bar_age, ax_bar_age = plt.subplots(figsize=(8, 4))  # Slightly reduced width
-                    sns.barplot(x=bar_age.index, y=bar_age.values, ax=ax_bar_age)
-                    ax_bar_age.set_xlabel("Age Group")
-                    ax_bar_age.set_ylabel(f"Sum of {selected_measure}")
-                    ax_bar_age.set_xticklabels(ax_bar_age.get_xticklabels(), rotation=45, ha='right')
-                    ax_bar_age.grid(False) 
-                    sns.despine(top=True, right=True)
-                    st.pyplot(fig_bar_age)
-
-                if show_bar_gender:
-                    st.markdown("**Sum by Gender**")
-                    bar_gender = df_m.groupby("gender")["val"].sum()
-                    fig_bar_gender, ax_bar_gender = plt.subplots(figsize=(5, 4))
-                    sns.barplot(x=bar_gender.index, y=bar_gender.values, ax=ax_bar_gender)
-                    ax_bar_gender.set_xlabel("Gender")
-                    ax_bar_gender.set_ylabel(f"Sum of {selected_measure}")
-                    ax_bar_gender.grid(axis='y', linestyle='--', linewidth=0.4, alpha=0.3)
-                    sns.despine(top=True, right=True)
-                    st.pyplot(fig_bar_gender)
-
-    # TAB 2: Interactive Dashboard 
-    if show_dashboard:
-        with tab2:
-
-            if selected_dash_ages:
-                filtered_df = df[
-                    (df['measure'] == selected_dash_measure) &
-                    (df['metric'] == selected_dash_metric) &
-                    (df['gender'] == selected_dash_gender) &
-                    (df['age'].isin(selected_dash_ages)) &
-                    (df['year'].between(selected_dash_years[0], selected_dash_years[1]))
-                ]
-                if not filtered_df.empty:
-                    fig = px.line(
-                        filtered_df.sort_values("year"),
-                        x='year',
-                        y='val',
-                        color='age',
-                        markers=False,
-                        line_shape="linear",
-                        category_orders={"age": sorted_ages},
-                        title=f"Time Trend of {selected_dash_measure} Among {selected_dash_gender}s by Age Group",
-                        labels={
-                            "val": f"{selected_dash_measure.split()[0]} ({metric_display_names[selected_dash_metric]})",
-                            "year": "Year",
-                            "age": "Age Group"
-                        },
-                        hover_data={
-                            "year": False,
-                            "age": True,
-                            "val": ':.0f'
-                        }
-                    )
-                    fig.update_layout(
-                        title_font_size=18,
-                        showlegend=True,
-                        plot_bgcolor='white',
-                        xaxis=dict(showgrid=False),
-                        yaxis=dict(showgrid=False),
-                        hovermode="x unified",
-                    )
-                    st.plotly_chart(fig, use_container_width=True)
-                else:
-                    st.warning("No data found for the selected filters.")
-            else:
-                st.info("Please select at least one age group to display results.")       
+    render_dashboard("Incidence", "Number", tab1)
+    render_dashboard("Deaths", "Number", tab2)
+    render_dashboard("Incidence", "Rate", tab3)
+    render_dashboard("Deaths", "Rate", tab4)
 else:
     st.warning("🔒 This cancer analytics dashboard is password-protected. Enter the correct password in the sidebar to access.")
