@@ -6,12 +6,12 @@ import plotly.express as px
 CORRECT_PASSWORD = "cancer25"
 st.set_page_config(layout="wide", page_title="Cancer Burden in Lebanon", page_icon="🧬")
 
-# Color Palette
+# Color Palette and Sorting
 seaborn_palette = ['#66C2A5', '#FC8D62', '#8DA0CB', '#E78AC3', '#A6D854']
 gender_colors = {"Male": seaborn_palette[0], "Female": seaborn_palette[1]}
 sorted_ages = ["15-19 years", "20-54 years", "55-59 years", "60-64 years", "65-74 years"]
 
-# Session State Initialization
+# Session State
 if "authenticated" not in st.session_state:
     st.session_state.authenticated = False
 if "password_attempt" not in st.session_state:
@@ -33,15 +33,14 @@ with st.sidebar:
             st.session_state.authenticated = True
             st.rerun()
 
-# Main Content
+# Main Dashboard
 if st.session_state.authenticated:
     df = pd.read_csv("cancer_lebanon.csv")
     df = df[df["age"] != "All ages"]
     df["year"] = pd.to_numeric(df["year"], errors="coerce")
 
-    # Sidebar year slider
-    min_year = int(df["year"].min())
-    max_year = int(df["year"].max())
+    # Sidebar Filter
+    min_year, max_year = int(df["year"].min()), int(df["year"].max())
     selected_years = st.sidebar.slider("Select Year Range", min_year, max_year, (min_year, max_year))
 
     st.markdown("## 🧬 Cancer Burden in Lebanon: Multi-Dimensional Dashboard")
@@ -63,11 +62,11 @@ if st.session_state.authenticated:
             return
 
         with tab:
-            # KPI Metrics
+            # KPIs
             total_val = filtered_df["val"].sum()
-            latest_df = filtered_df[filtered_df["year"] == filtered_df["year"].max()]
-            male_val = latest_df[latest_df["gender"] == "Male"]["val"].sum()
-            female_val = latest_df[latest_df["gender"] == "Female"]["val"].sum()
+            latest = filtered_df[filtered_df["year"] == filtered_df["year"].max()]
+            male_val = latest[latest["gender"] == "Male"]["val"].sum()
+            female_val = latest[latest["gender"] == "Female"]["val"].sum()
 
             col1, col2, col3 = st.columns(3)
             col1.metric(f"Total {label_y}", f"{int(total_val):,}")
@@ -95,19 +94,13 @@ if st.session_state.authenticated:
                 title="Distribution of Values by Age Group",
                 labels={"age": "Age Group", "val": label_y}
             )
-            fig_box.update_layout(height=260, title_x=0.0, showlegend=False)
+            fig_box.update_layout(height=260, title_x=0.0, showlegend=False, hovermode="closest")
             r1c2.plotly_chart(fig_box, use_container_width=True)
 
-            trend_df = (
-                filtered_df[filtered_df["age"].isin(sorted_ages)]
-                .groupby(["year", "age"], as_index=False)["val"]
-                .sum()
-                .pivot(index="year", columns="age", values="val")
-                .fillna(0)
-                .reset_index()
-                .melt(id_vars="year", var_name="age", value_name="val")
-                .sort_values("year")
-            )
+            trend_df = filtered_df.copy()
+            trend_df = trend_df[trend_df["age"].isin(sorted_ages)]
+            trend_df["age"] = pd.Categorical(trend_df["age"], categories=sorted_ages, ordered=True)
+
             fig_line = px.line(
                 trend_df,
                 x="year", y="val", color="age",
@@ -116,7 +109,7 @@ if st.session_state.authenticated:
                 category_orders={"age": sorted_ages},
                 title=f"Time Trend of {measure} by Age Group",
                 labels={"year": "Year", "val": label_y, "age": "Age Group"},
-                hover_data={"year": False, "age": True, "val": ':.0f'}
+                hover_data={"year": True, "age": True, "val": ':.0f'}
             )
             fig_line.update_layout(
                 height=260,
@@ -125,7 +118,7 @@ if st.session_state.authenticated:
                 plot_bgcolor='white',
                 xaxis=dict(showgrid=False),
                 yaxis=dict(showgrid=False),
-                hovermode="x unified"
+                hovermode="closest"
             )
             r1c3.plotly_chart(fig_line, use_container_width=True)
 
@@ -169,10 +162,10 @@ if st.session_state.authenticated:
                 title="20-Year Distribution by Age and Gender",
                 labels={"age": "Age Group", "val": label_y}
             )
-            fig_stack.update_layout(height=260, title_x=0.0)
+            fig_stack.update_layout(height=260, title_x=0.0, hovermode="closest")
             r2c3.plotly_chart(fig_stack, use_container_width=True)
 
-    # Render All Tabs
+    # Render Tabs
     render_dashboard("Incidence", "Number", tab1)
     render_dashboard("Deaths", "Number", tab2)
     render_dashboard("Incidence", "Rate", tab3)
