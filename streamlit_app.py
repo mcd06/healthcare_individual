@@ -175,3 +175,10 @@ if st.session_state.authenticated:
 
 else:
     st.warning("🔒 This cancer analytics dashboard is password-protected. Enter the correct password in the sidebar to access.")
+
+else:
+    col_left, col_right = st.columns([2, 1])
+    with col_left:
+        st.warning("🔒 This cancer analytics dashboard is password-protected. Enter the correct password in the sidebar to access.")
+    with col_right:
+        st.image("A_flat-style_digital_illustration_informs_about_ca.png", use_column_width=True)
