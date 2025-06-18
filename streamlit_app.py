@@ -147,7 +147,7 @@ if st.session_state.authenticated:
                 title=f"Gender-wise Total {measure} per Year",
                 labels={"year": "Year", "val": label_y, "gender": "Gender"}
             )
-            fig_scatter.update_traces(mode="markers", marker=dict(size=6, opacity=0.85, line=dict(width=0.4, color="gray")))
+            fig_scatter.update_traces(mode="markers", marker=dict(size=4, opacity=0.85, line=dict(width=0.4, color="gray")))
             fig_scatter.update_layout(height=260, title_font_size=16, title_x=0.0, plot_bgcolor='white', xaxis=dict(showgrid=False), yaxis=dict(showgrid=False), hovermode="closest")
             r2c2.plotly_chart(fig_scatter, use_container_width=True)
 
