@@ -18,7 +18,7 @@ if "password_attempt" not in st.session_state:
 # --- Sidebar Login ---
 with st.sidebar:
     st.image("IHME.webp", width=150)
-    st.title("🔐 Login")
+    st.title("🔒 Login")
     if st.session_state.authenticated:
         if st.button("Logout"):
             st.session_state.authenticated = False
@@ -74,10 +74,13 @@ if st.session_state.authenticated:
             fig_heat = px.imshow(
                 heat_df,
                 labels=dict(x="Year", y="Age Group", color="Value"),
-                color_continuous_scale="YlOrRd",
-                title="Heatmap: Age × Year"
+                color_continuous_scale="YlOrRd"
             )
-            fig_heat.update_layout(height=240, margin=dict(t=30, b=10))
+            fig_heat.update_layout(
+                title=dict(text="Heatmap: Age × Year", font=dict(size=18)),
+                height=240,
+                margin=dict(t=40, b=10)
+            )
             r1c1.plotly_chart(fig_heat, use_container_width=True)
 
             # Stacked Bar (sum of all years)
@@ -93,7 +96,7 @@ if st.session_state.authenticated:
             fig_stack.update_layout(height=240)
             r1c2.plotly_chart(fig_stack, use_container_width=True)
 
-            # Line Chart (closest hovermode)
+            # Line Chart (hovermode = closest)
             line_df = filtered_df[filtered_df["age"].isin(sorted_ages)].sort_values("year")
             fig_line = px.line(
                 line_df,
@@ -119,10 +122,12 @@ if st.session_state.authenticated:
             )
             r1c3.plotly_chart(fig_line, use_container_width=True)
 
+            st.markdown("---")
+
             # --- Row 2: Pie | Age Bar | Boxplot ---
             r2c1, r2c2, r2c3 = st.columns(3)
 
-            # Pie Chart: Gender Share (total)
+            # Pie Chart: Gender Share (total) — enlarged
             gender_sum = filtered_df.groupby("gender")["val"].sum()
             fig_pie = px.pie(
                 values=gender_sum.values,
@@ -131,17 +136,18 @@ if st.session_state.authenticated:
                 color=gender_sum.index,
                 color_discrete_map=gender_colors
             )
-            fig_pie.update_layout(height=240)
+            fig_pie.update_traces(textinfo="percent+label", pull=[0.03, 0.03])
+            fig_pie.update_layout(height=260, title_font_size=16)
             r2c1.plotly_chart(fig_pie, use_container_width=True)
 
-            # Age Group Bar: Sum total across years
+            # Age Bar: Total by Age Group
             age_sum = filtered_df.groupby("age")["val"].sum().reindex(sorted_ages)
             fig_age = px.bar(
                 x=age_sum.index,
                 y=age_sum.values,
                 labels={"x": "Age Group", "y": "Total"},
                 title="Total Burden by Age Group",
-                color_discrete_sequence=[seaborn_palette[2]]
+                color_discrete_sequence=[seaborn_palette[1]]  # orange
             )
             fig_age.update_layout(height=240)
             r2c2.plotly_chart(fig_age, use_container_width=True)
@@ -152,7 +158,7 @@ if st.session_state.authenticated:
                 x="age", y="val",
                 category_orders={"age": sorted_ages},
                 title="Distribution of Values by Age Group",
-                color_discrete_sequence=[seaborn_palette[3]]
+                color_discrete_sequence=[seaborn_palette[4]]  # light green
             )
             fig_box.update_layout(height=240)
             r2c3.plotly_chart(fig_box, use_container_width=True)
@@ -163,4 +169,4 @@ if st.session_state.authenticated:
     render_dashboard("Deaths", "Rate", tab4)
 
 else:
-    st.warning("🔐 This cancer analytics dashboard is password-protected. Enter the correct password in the sidebar to access.")
+    st.warning("🔒 This cancer analytics dashboard is password-protected. Enter the correct password in the sidebar to access.")
