@@ -181,4 +181,4 @@ else:
     with col_left:
         st.warning("🔒 This cancer analytics dashboard is password-protected. Enter the correct password in the sidebar to access.")
     with col_right:
-        st.image("A_flat-style_digital_illustration_informs_about_ca.png", use_column_width=True)
+        st.image("image.png", use_column_width=True)
