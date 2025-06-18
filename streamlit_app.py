@@ -18,7 +18,7 @@ if "password_attempt" not in st.session_state:
 # --- Sidebar Login ---
 with st.sidebar:
     st.image("IHME.webp", width=150)
-    st.title("🔐 Login")
+    st.title("🔒 Login")
     if st.session_state.authenticated:
         if st.button("Logout"):
             st.session_state.authenticated = False
@@ -54,7 +54,7 @@ if st.session_state.authenticated:
             return
 
         with tab:
-            # KPIs
+            # KPI Metrics
             total_val = filtered_df["val"].sum()
             latest_year = filtered_df["year"].max()
             latest_df = filtered_df[filtered_df["year"] == latest_year]
@@ -66,13 +66,8 @@ if st.session_state.authenticated:
             k2.metric("Latest Male Cases", f"{int(male_val):,}")
             k3.metric("Latest Female Cases", f"{int(female_val):,}")
 
-            # Top 3 contributors card
-            top_contrib = latest_df.groupby(["age", "gender"])["val"].sum().sort_values(ascending=False).head(3)
-            top_text = ", ".join([f"{age} {gender} ({int(val):,})" for (age, gender), val in top_contrib.items()])
-            st.success(f"Top 3 contributors in {latest_year}: {top_text}")
-
-            # Row 2 — Heatmap and Stacked Bar
-            col1, col2 = st.columns(2)
+            # Row of 3 charts
+            col1, col2, col3 = st.columns(3)
 
             # Heatmap: Age × Year
             heat_df = filtered_df.pivot_table(index="age", columns="year", values="val", aggfunc="sum").reindex(index=sorted_ages)
@@ -83,10 +78,10 @@ if st.session_state.authenticated:
                 color_continuous_scale="YlOrRd",
                 title="Heatmap: Age × Year"
             )
-            fig_heat.update_layout(height=260, margin=dict(t=30, b=10))
+            fig_heat.update_layout(height=240, margin=dict(t=30, b=10))
             col1.plotly_chart(fig_heat, use_container_width=True)
 
-            # Stacked Bar by Age and Gender (latest year)
+            # Stacked Bar: Age × Gender
             bar_df = latest_df.groupby(["age", "gender"])["val"].sum().reset_index()
             fig_stack = px.bar(
                 bar_df,
@@ -96,10 +91,10 @@ if st.session_state.authenticated:
                 barmode="stack",
                 color_discrete_map=gender_colors
             )
-            fig_stack.update_layout(height=260)
+            fig_stack.update_layout(height=240)
             col2.plotly_chart(fig_stack, use_container_width=True)
 
-            # Line Chart (original interactive version)
+            # Line Chart (Interactive Format)
             line_df = filtered_df[filtered_df["age"].isin(sorted_ages)].sort_values("year")
             fig_line = px.line(
                 line_df,
@@ -123,16 +118,16 @@ if st.session_state.authenticated:
                 color_discrete_sequence=seaborn_palette
             )
             fig_line.update_layout(
-                title_font_size=18,
+                title_font_size=16,
                 showlegend=True,
                 plot_bgcolor='white',
                 xaxis=dict(showgrid=False),
                 yaxis=dict(showgrid=False),
                 hovermode="x unified",
-                height=320,
-                margin=dict(t=40, b=10)
+                height=240,
+                margin=dict(t=30, b=10)
             )
-            st.plotly_chart(fig_line, use_container_width=True)
+            col3.plotly_chart(fig_line, use_container_width=True)
 
     render_dashboard("Incidence", "Number", tab1)
     render_dashboard("Deaths", "Number", tab2)
@@ -140,4 +135,4 @@ if st.session_state.authenticated:
     render_dashboard("Deaths", "Rate", tab4)
 
 else:
-    st.warning("🔐 This cancer analytics dashboard is password-protected. Enter the correct password in the sidebar to access.")
+    st.warning("🔒 This cancer analytics dashboard is password-protected. Enter the correct password in the sidebar to access.")
