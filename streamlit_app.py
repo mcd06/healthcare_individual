@@ -62,10 +62,9 @@ if st.session_state.authenticated:
             k2.metric("Latest Male Cases", f"{int(male_val):,}")
             k3.metric("Latest Female Cases", f"{int(female_val):,}")
 
-            # --- Row 1: Heatmap | Stacked Bar | Line Plot ---
+            # --- Row 1: Heatmap | Stacked Bar | Line Chart ---
             r1c1, r1c2, r1c3 = st.columns(3)
 
-            # Heatmap
             heat_df = filtered_df.pivot_table(index="age", columns="year", values="val", aggfunc="sum").reindex(index=sorted_ages)
             fig_heat = px.imshow(
                 heat_df,
@@ -73,14 +72,12 @@ if st.session_state.authenticated:
                 color_continuous_scale="YlOrRd"
             )
             fig_heat.update_layout(
-                title="Heatmap: Age × Year",
-                title_font=dict(size=20, family="Arial", color="black"),
+                title=dict(text="Heatmap: Age × Year", font=dict(size=18)),
                 height=240,
-                margin=dict(t=50, b=10)
+                margin=dict(t=40, b=10)
             )
             r1c1.plotly_chart(fig_heat, use_container_width=True)
 
-            # Stacked Bar: Age × Gender
             bar_df = filtered_df.groupby(["age", "gender"])["val"].sum().reset_index()
             fig_stack = px.bar(
                 bar_df,
@@ -93,17 +90,14 @@ if st.session_state.authenticated:
             fig_stack.update_layout(height=240)
             r1c2.plotly_chart(fig_stack, use_container_width=True)
 
-            # Line Chart (closest hovermode)
             line_df = filtered_df[filtered_df["age"].isin(sorted_ages)].sort_values("year")
             fig_line = px.line(
                 line_df,
-                x='year',
-                y='val',
-                color='age',
+                x="year", y="val", color="age",
+                title=f"{measure} Over Time by Age Group",
                 markers=False,
                 line_shape="linear",
                 category_orders={"age": sorted_ages},
-                title=f"{measure} Over Time by Age Group",
                 labels={"val": f"{measure} ({metric})", "year": "Year", "age": "Age Group"},
                 hover_data={"year": False, "age": True, "val": ':.0f'},
                 color_discrete_sequence=seaborn_palette
@@ -118,13 +112,12 @@ if st.session_state.authenticated:
             )
             r1c3.plotly_chart(fig_line, use_container_width=True)
 
-            # ━━ Visual Divider ━━
+            # 🔹 Divider
             st.markdown("---")
 
             # --- Row 2: Pie | Age Bar | Box Plot ---
             r2c1, r2c2, r2c3 = st.columns(3)
 
-            # Pie Chart (enlarged)
             gender_sum = filtered_df.groupby("gender")["val"].sum()
             fig_pie = px.pie(
                 values=gender_sum.values,
@@ -137,7 +130,6 @@ if st.session_state.authenticated:
             fig_pie.update_layout(height=260, title_font_size=16)
             r2c1.plotly_chart(fig_pie, use_container_width=True)
 
-            # Age Bar Plot (orange)
             age_sum = filtered_df.groupby("age")["val"].sum().reindex(sorted_ages)
             fig_age = px.bar(
                 x=age_sum.index,
@@ -149,7 +141,6 @@ if st.session_state.authenticated:
             fig_age.update_layout(height=240)
             r2c2.plotly_chart(fig_age, use_container_width=True)
 
-            # Box Plot (light green)
             fig_box = px.box(
                 filtered_df,
                 x="age", y="val",
@@ -160,7 +151,6 @@ if st.session_state.authenticated:
             fig_box.update_layout(height=240)
             r2c3.plotly_chart(fig_box, use_container_width=True)
 
-    # Render all tabs
     render_dashboard("Incidence", "Number", tab1)
     render_dashboard("Deaths", "Number", tab2)
     render_dashboard("Incidence", "Rate", tab3)
