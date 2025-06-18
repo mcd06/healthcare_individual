@@ -4,7 +4,7 @@ import plotly.express as px
 
 # Configuration
 CORRECT_PASSWORD = "cancer25"
-st.set_page_config(layout="wide", page_title="Cancer Burden in Lebanon", page_icon="🧬")st.set_page_config(
+st.set_page_config(
     layout="wide",
     page_title="Cancer Burden in Lebanon",
     page_icon="🧬",
