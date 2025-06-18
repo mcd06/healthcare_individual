@@ -68,17 +68,6 @@ if st.session_state.authenticated:
             st.warning("No data available.")
             return
 
-        # KPI Metrics
-        total_val = filtered_df["val"].sum()
-        latest_df = filtered_df[filtered_df["year"] == filtered_df["year"].max()]
-        male_val = latest_df[latest_df["gender"] == "Male"]["val"].sum()
-        female_val = latest_df[latest_df["gender"] == "Female"]["val"].sum()
-
-        col1, col2, col3 = st.columns(3)
-        col1.metric(f"Total {label_y}", f"{int(total_val):,}")
-        col2.metric("Latest Male Cases", f"{int(male_val):,}")
-        col3.metric("Latest Female Cases", f"{int(female_val):,}")
-
         # Row 1: Heatmap | Box Plot | Line Chart
         r1c1, r1c2, r1c3 = st.columns(3)
 
