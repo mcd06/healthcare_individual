@@ -89,8 +89,8 @@ if st.session_state.authenticated:
     # Header 
     st.markdown("## 🧬 Cancer Burden in Lebanon: Trends and Insights")
     st.markdown(
-        "Explore trends in cancer-related indicators such as incidence, prevalence, and mortality "
-        "across different age groups and genders in Lebanon from 2000 to 2021. "
+        "Explore trends in cancer-related indicators such as incidence and mortality "
+        "across different age groups and genders in Lebanon from 2000 to 2020. "
         "Use the visual analysis and interactive tools to uncover patterns, disparities, and key insights."
     )
     st.markdown("---")
