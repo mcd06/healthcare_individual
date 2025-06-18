@@ -174,8 +174,5 @@ if st.session_state.authenticated:
     render_dashboard("Deaths", "Rate", tab4)
 
 else:
-    col_left, col_right = st.columns([2, 1])
-    with col_left:
-        st.warning("🔒 This cancer analytics dashboard is password-protected. Enter the correct password in the sidebar to access.")
-    with col_right:
-        st.image("image.png", use_container_width=True)
+    st.warning("🔒 This cancer analytics dashboard is password-protected. Enter the correct password in the sidebar to access.")
+    st.image("image.png", use_container_width=True)
