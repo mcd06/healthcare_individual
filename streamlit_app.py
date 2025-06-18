@@ -120,7 +120,7 @@ if st.session_state.authenticated:
                 plot_bgcolor='white',
                 xaxis=dict(showgrid=False),
                 yaxis=dict(showgrid=False),
-                hovermode="x unified",
+                hovermode="closest",
                 height=260,
                 margin=dict(t=30, b=10)
             )
