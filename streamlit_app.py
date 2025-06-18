@@ -71,11 +71,7 @@ if st.session_state.authenticated:
         with st.sidebar.expander("Dashboard Controls", expanded=True):
             dashboard_order = [
                 "Incidence",
-                "Prevalence",
-                "Deaths",
-                "YLLs (Years of Life Lost)",
-                "YLDs (Years Lived with Disability)",
-                "DALYs (Disability-Adjusted Life Years)"
+                "Deaths"
             ]
             actual_measures = list(df["measure"].unique())
             final_order = [m for m in dashboard_order if m in actual_measures]
