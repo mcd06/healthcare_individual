@@ -19,18 +19,16 @@ if "password_attempt" not in st.session_state:
 with st.sidebar:
     st.image("IHME.webp", width=150)
     st.title("🔒 Login")
-
     if st.session_state.authenticated:
         if st.button("Logout"):
             st.session_state.authenticated = False
             st.session_state.password_attempt = ""
-            st.experimental_rerun()
+            st.rerun()
     else:
         st.text("Please enter the password")
         st.text_input("Password", type="password", key="password_attempt")
         if st.session_state.password_attempt == CORRECT_PASSWORD:
             st.session_state.authenticated = True
-            st.experimental_rerun()
 
 # --- Main Content ---
 if st.session_state.authenticated:
@@ -75,7 +73,7 @@ if st.session_state.authenticated:
 
             fig_heat = px.imshow(
                 heat_df,
-                labels=dict(x="Year", y="Age Group", color=f"{measure} ({metric})"),
+                labels=dict(x="Year", y="Age Group", color="Value"),
                 color_continuous_scale="YlOrRd"
             )
             fig_heat.update_layout(
@@ -94,8 +92,7 @@ if st.session_state.authenticated:
                 title="20-Year Distribution by Age and Gender",
                 category_orders={"age": sorted_ages},
                 barmode="stack",
-                color_discrete_map=gender_colors,
-                labels={"age": "Age Group", "val": "Total Cases"}
+                color_discrete_map=gender_colors
             )
             fig_stack.update_layout(height=260, title_x=0.0)
             r1c2.plotly_chart(fig_stack, use_container_width=True)
@@ -108,7 +105,11 @@ if st.session_state.authenticated:
                 markers=False,
                 line_shape="linear",
                 category_orders={"age": sorted_ages},
-                labels={"year": "Year", "val": f"{measure} ({metric})", "age": "Age Group"},
+                labels={
+                    "val": f"{measure} ({metric})",
+                    "year": "Year",
+                    "age": "Age Group"
+                },
                 hover_data={"year": False, "age": True, "val": ':.0f'},
                 color_discrete_sequence=seaborn_palette
             )
@@ -159,7 +160,11 @@ if st.session_state.authenticated:
                 cohort_df.sort_values("year"),
                 x="year", y="val", color="Cohort",
                 title="Cohort Comparison: Trends Over Time",
-                labels={"year": "Year", "val": f"{measure} ({metric})", "Cohort": "Cohort Group"},
+                labels={
+                    "val": f"{measure} ({metric})",
+                    "year": "Year",
+                    "Cohort": "Cohort Group"
+                },
                 color_discrete_sequence=seaborn_palette,
                 hover_data={"year": False, "Cohort": True, "val": ':.0f'}
             )
@@ -170,7 +175,7 @@ if st.session_state.authenticated:
                 plot_bgcolor='white',
                 xaxis=dict(showgrid=False),
                 yaxis=dict(showgrid=False),
-                hovermode="closest",
+                hovermode="x unified",
                 height=260
             )
             r2c2.plotly_chart(fig_cohort, use_container_width=True)
@@ -180,8 +185,7 @@ if st.session_state.authenticated:
                 x="age", y="val",
                 category_orders={"age": sorted_ages},
                 title="Distribution of Values by Age Group",
-                color_discrete_sequence=[seaborn_palette[0]],  # darker green
-                labels={"age": "Age Group", "val": f"{measure} ({metric})"}
+                color_discrete_sequence=[seaborn_palette[0]]  # darker green
             )
             fig_box.update_layout(height=260, title_x=0.0)
             r2c3.plotly_chart(fig_box, use_container_width=True)
