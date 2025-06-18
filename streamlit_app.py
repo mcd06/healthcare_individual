@@ -138,7 +138,7 @@ if st.session_state.authenticated:
             # ━━ Divider
             st.markdown("---")
 
-            # --- Row 2: Pie | 2D Scatter | Box Plot ---
+            # --- Row 2: Pie | Scatter | Box Plot ---
             r2c1, r2c2, r2c3 = st.columns(3)
 
             gender_sum = filtered_df.groupby("gender")["val"].sum()
@@ -157,22 +157,23 @@ if st.session_state.authenticated:
             fig_pie.update_layout(height=260, title_font_size=16, title_x=0.0)
             r2c1.plotly_chart(fig_pie, use_container_width=True)
 
+            # ✅ Scatter Plot (Points per Gender per Year)
+            scatter_df = filtered_df.groupby(["year", "gender"], as_index=False)["val"].sum()
             fig_scatter = px.scatter(
-                filtered_df,
+                scatter_df,
                 x="year", y="val",
                 color="gender",
-                symbol="age",
-                title=f"Scatter Plot: {measure} by Year and Gender",
+                title=f"Gender-wise Total {measure} per Year",
                 labels={
                     "year": "Year",
                     "val": label_y,
-                    "gender": "Gender",
-                    "age": "Age Group"
+                    "gender": "Gender"
                 },
                 color_discrete_map=gender_colors
             )
             fig_scatter.update_traces(
-                marker=dict(size=7, opacity=0.9, line=dict(width=0.5, color='DarkSlateGrey'))
+                mode="markers",
+                marker=dict(size=8, opacity=0.8, line=dict(width=0.5, color='gray'))
             )
             fig_scatter.update_layout(
                 height=260,
