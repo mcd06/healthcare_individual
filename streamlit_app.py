@@ -175,7 +175,7 @@ if st.session_state.authenticated:
                 plot_bgcolor='white',
                 xaxis=dict(showgrid=False),
                 yaxis=dict(showgrid=False),
-                hovermode="x unified",
+                hovermode="closest",
                 height=260
             )
             r2c2.plotly_chart(fig_cohort, use_container_width=True)
