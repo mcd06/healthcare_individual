@@ -19,7 +19,6 @@ if "password_attempt" not in st.session_state:
 with st.sidebar:
     st.image("IHME.webp", width=150)
     st.title("🔒 Login")
-
     if st.session_state.authenticated:
         if st.button("Logout"):
             st.session_state.authenticated = False
@@ -44,100 +43,121 @@ if st.session_state.authenticated:
     tabs = st.tabs(["Number / Incidence", "Number / Death", "Rate / Incidence", "Rate / Death"])
 
     def render(measure, metric, tab):
-        d = df[(df.measure==measure)&(df.metric==metric)]
+        d = df[(df["measure"] == measure) & (df["metric"] == metric)]
         if d.empty:
             tab.warning("No data.")
             return
 
         with tab:
-            year_max = d.year.max()
-            tot = d.val.sum()
-            m = d[d.gender=="Male"& (d.year==year_max)].val.sum()
-            f = d[d.gender=="Female"& (d.year==year_max)].val.sum()
+            year_max = d["year"].max()
+            total = int(d["val"].sum())
 
-            c1,c2,c3 = st.columns(3)
-            c1.metric(f"Total {measure} ({metric})", f"{int(tot):,}")
-            c2.metric("Latest Male", f"{int(m):,}")
-            c3.metric("Latest Female", f"{int(f):,}")
+            # fixed boolean filtering
+            male_val = int(d[(d["gender"] == "Male") & (d["year"] == year_max)]["val"].sum())
+            female_val = int(d[(d["gender"] == "Female") & (d["year"] == year_max)]["val"].sum())
 
-            # row1
-            r1,r2,r3 = st.columns(3)
-            # heatmap
-            hm = d.pivot("age","year","val").reindex(ages)
-            fig_h = px.imshow(hm,
-                labels={"x":"Year","y":"Age","color":"Value"},
-                color_continuous_scale="YlOrRd")
+            c1, c2, c3 = st.columns(3)
+            c1.metric(f"Total {measure} ({metric})", f"{total:,}")
+            c2.metric("Latest Male", f"{male_val:,}")
+            c3.metric("Latest Female", f"{female_val:,}")
+
+            # Row 1
+            r1, r2, r3 = st.columns(3)
+
+            # Heatmap
+            hm = d.pivot(index="age", columns="year", values="val").reindex(index=ages)
+            fig_h = px.imshow(
+                hm,
+                labels={"x":"Year", "y":"Age", "color":"Value"},
+                color_continuous_scale="YlOrRd"
+            )
             fig_h.update_layout(
                 height=260,
-                margin=dict(t=40,b=10),
-                title=dict(text="Cancer Burden Heatmap by Age × Year", x=0.5))
+                margin=dict(t=40, b=10),
+                title=dict(text="Heatmap: Cancer Burden by Age & Year", x=0.5)
+            )
             r1.plotly_chart(fig_h, use_container_width=True)
 
-            # stacked bar
-            sb = d.groupby(["age","gender"]).val.sum().reset_index()
-            fig_s = px.bar(sb, x="age", y="val", color="gender",
+            # Stacked bar
+            sb = d.groupby(["age","gender"])["val"].sum().reset_index()
+            fig_s = px.bar(
+                sb, x="age", y="val", color="gender",
                 barmode="stack",
-                category_orders={"age":ages},
-                color_discrete_map=gender_colors)
+                category_orders={"age": ages},
+                color_discrete_map=gender_colors
+            )
             fig_s.update_layout(
                 height=260,
-                title=dict(text="20-Year Age × Gender Distribution", x=0.5))
+                title=dict(text="20-Year Distribution by Age & Gender", x=0.5)
+            )
             r2.plotly_chart(fig_s, use_container_width=True)
 
-            # line chart
-            ld = d[d.age.isin(ages)].sort_values("year")
-            fig_l = px.line(ld, x="year", y="val", color="age",
+            # Line chart
+            ld = d[d["age"].isin(ages)].sort_values("year")
+            fig_l = px.line(
+                ld, x="year", y="val", color="age",
                 line_shape="linear", markers=False,
-                category_orders={"age":ages},
+                category_orders={"age": ages},
                 color_discrete_sequence=palette,
-                labels={"val":f"{measure} ({metric})","year":"Year","age":"Age"}
+                labels={"val":f"{measure} ({metric})", "year":"Year", "age":"Age"}
             )
             fig_l.update_layout(
                 height=260,
                 plot_bgcolor="white",
                 xaxis=dict(showgrid=False),
                 yaxis=dict(showgrid=False),
-                margin=dict(t=30,b=10),
-                title=dict(text=f"{measure} Over Time by Age Group", x=0.5))
+                margin=dict(t=30, b=10),
+                title=dict(text=f"{measure} Over Time by Age Group", x=0.5)
+            )
             r3.plotly_chart(fig_l, use_container_width=True)
 
             st.markdown("---")
-            # row2
-            p1,p2,p3 = st.columns(3)
 
-            # pie
-            gs = d.groupby("gender").val.sum()
-            fig_p = px.pie(values=gs.values,names=gs.index,
-                color_discrete_map=gender_colors)
-            fig_p.update_traces(textinfo="percent+label", pull=[0.03,0.03])
+            # Row 2
+            p1, p2, p3 = st.columns(3)
+
+            # Pie chart
+            gs = d.groupby("gender")["val"].sum()
+            fig_p = px.pie(
+                values=gs.values, names=gs.index,
+                color_discrete_map=gender_colors
+            )
+            fig_p.update_traces(textinfo="percent+label", pull=[0.03, 0.03])
             fig_p.update_layout(
                 height=260,
-                title=dict(text="Total by Gender", x=0.5))
+                title=dict(text="Total Distribution by Gender", x=0.5)
+            )
             p1.plotly_chart(fig_p, use_container_width=True)
 
-            # age bar
-            ag = d.groupby("age").val.sum().reindex(ages)
-            fig_a = px.bar(x=ag.index,y=ag.values,
-                labels={"x":"Age","y":"Total"},
-                color_discrete_sequence=[palette[1]])
+            # Age bar
+            ag = d.groupby("age")["val"].sum().reindex(ages)
+            fig_a = px.bar(
+                x=ag.index, y=ag.values,
+                labels={"x":"Age", "y":"Total"},
+                color_discrete_sequence=[palette[1]]
+            )
             fig_a.update_layout(
                 height=260,
-                title=dict(text="Total by Age Group", x=0.5))
+                title=dict(text="Total Burden by Age Group", x=0.5)
+            )
             p2.plotly_chart(fig_a, use_container_width=True)
 
-            # box
-            fig_b = px.box(d, x="age", y="val",
-                category_orders={"age":ages},
-                color_discrete_sequence=[palette[4]])
+            # Box plot
+            fig_b = px.box(
+                d, x="age", y="val",
+                category_orders={"age": ages},
+                color_discrete_sequence=[palette[4]]
+            )
             fig_b.update_layout(
                 height=260,
-                title=dict(text="Value Distribution by Age", x=0.5))
+                title=dict(text="Value Distribution by Age Group", x=0.5)
+            )
             p3.plotly_chart(fig_b, use_container_width=True)
 
-    render("Incidence","Number",tabs[0])
-    render("Deaths","Number",tabs[1])
-    render("Incidence","Rate",tabs[2])
-    render("Deaths","Rate",tabs[3])
+    render("Incidence", "Number", tabs[0])
+    render("Deaths",    "Number", tabs[1])
+    render("Incidence", "Rate",   tabs[2])
+    render("Deaths",    "Rate",   tabs[3])
 
 else:
     st.warning("🔒 This dashboard is password-protected. Please login to continue.")
