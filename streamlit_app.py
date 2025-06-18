@@ -6,6 +6,9 @@ import plotly.express as px
 CORRECT_PASSWORD = "cancer25"
 st.set_page_config(layout="wide", page_title="Cancer Dashboard", page_icon="🧬")
 
+# --- Seaborn Palette for Plotly ---
+seaborn_palette = ['#66C2A5', '#FC8D62', '#8DA0CB', '#E78AC3', '#A6D854']
+
 # --- Session State Initialization ---
 if "authenticated" not in st.session_state:
     st.session_state.authenticated = False
@@ -32,7 +35,7 @@ if st.session_state.authenticated:
     df = pd.read_csv("cancer_lebanon.csv")
     df = df[df["age"] != "All ages"]
     sorted_ages = ["15-19 years", "20-54 years", "55-59 years", "60-64 years", "65-74 years"]
-    gender_colors = {"Male": "#66C2A5", "Female": "#FC8D62"}
+    gender_colors = {"Male": seaborn_palette[0], "Female": seaborn_palette[1]}
 
     # --- Tabs Setup ---
     st.markdown("## 🧬 Cancer Burden in Lebanon Dashboard")
@@ -63,53 +66,55 @@ if st.session_state.authenticated:
             kpi2.metric("Latest Male Cases", f"{int(male_val):,}")
             kpi3.metric("Latest Female Cases", f"{int(female_val):,}")
 
-            # --- Charts Section ---
-            col1, col2 = st.columns(2)
+            # --- Chart Section ---
+            col1, col2, col3 = st.columns([1, 1, 2])
 
-            # Pie Chart by Gender
+            # Pie Chart
             gender_sum = filtered_df.groupby("gender")["val"].sum()
-            fig_gender = px.pie(
+            fig_pie = px.pie(
                 values=gender_sum.values,
                 names=gender_sum.index,
-                title="Distribution by Gender",
+                title="Gender Distribution",
                 color=gender_sum.index,
                 color_discrete_map=gender_colors
             )
-            col1.plotly_chart(fig_gender, use_container_width=True)
+            col1.plotly_chart(fig_pie, use_container_width=True)
 
-            # Bar Chart by Age Group
+            # Bar Chart
             age_sum = filtered_df.groupby("age")["val"].sum().reindex(sorted_ages)
-            fig_age = px.bar(
+            fig_bar = px.bar(
                 x=age_sum.index,
                 y=age_sum.values,
                 labels={"x": "Age Group", "y": "Total"},
-                title="Distribution by Age Group",
-                color_discrete_sequence=["#8DA0CB"]
+                title="By Age Group",
+                color_discrete_sequence=[seaborn_palette[2]]
             )
-            col2.plotly_chart(fig_age, use_container_width=True)
+            fig_bar.update_layout(height=300)
+            col2.plotly_chart(fig_bar, use_container_width=True)
 
-            # Line Chart Over Time by Age
+            # Line Chart
+            line_df = filtered_df[filtered_df["age"].isin(sorted_ages)].sort_values("year")
             fig_line = px.line(
-                filtered_df[filtered_df["age"].isin(sorted_ages)],
-                x="year", y="val", color="age",
-                title=f"{measure} Over Time by Age Group",
+                line_df,
+                x="year",
+                y="val",
+                color="age",
+                title=f"{measure} Over Time",
+                color_discrete_sequence=seaborn_palette,
                 category_orders={"age": sorted_ages},
-                markers=True
+                markers=False,
+                line_shape="linear",
+                labels={"val": f"{measure} ({metric})", "year": "Year", "age": "Age Group"},
+                hover_data={"year": False, "val": ':.0f', "age": True}
             )
-            st.plotly_chart(fig_line, use_container_width=True)
+            fig_line.update_layout(
+                height=350,
+                plot_bgcolor='white',
+                hovermode="x unified",
+                margin=dict(t=40, b=10, l=0, r=0)
+            )
+            col3.plotly_chart(fig_line, use_container_width=True)
 
-            # Optional: About Section
-            with st.expander("ℹ️ About this Dashboard"):
-                st.markdown("""
-                **Data Source:** IHME - Global Burden of Disease  
-                **Definitions:**  
-                - **Number:** Raw count of cases  
-                - **Rate:** Age-standardized rate per 100,000 population  
-                - **Incidence:** New cases within the year  
-                - **Deaths:** Mortality count attributed to cancer  
-                """)
-
-    # Render each tab
     render_dashboard("Incidence", "Number", tab1)
     render_dashboard("Deaths", "Number", tab2)
     render_dashboard("Incidence", "Rate", tab3)
