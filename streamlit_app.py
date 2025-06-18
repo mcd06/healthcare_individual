@@ -3,6 +3,8 @@ import pandas as pd
 import plotly.express as px
 import seaborn as sns
 import matplotlib.pyplot as plt
+
+# Custom Colors
 seaborn_palette = ['#66C2A5', '#FC8D62', '#8DA0CB', '#E78AC3', '#A6D854']
 sns.set_palette(seaborn_palette)
 
@@ -18,7 +20,7 @@ if "password_attempt" not in st.session_state:
 # Sidebar Login Logic 
 with st.sidebar:
     st.image("IHME.webp", width=150)
-    st.title("🔒 Login")
+    st.title("\U0001F512 Login")
 
     if st.session_state.authenticated:
         if st.button("Logout"):
@@ -36,16 +38,18 @@ if st.session_state.authenticated:
     # Load Dataset
     df = pd.read_csv("cancer_lebanon.csv")
 
-    # Sort age groups ascendingly
-    sorted_ages = sorted(df["age"].unique(), key=lambda x: int(x.split('-')[0]) if '-' in x else (100 if '75+' in x else 0))
+    # Filters
+    valid_ages = ["15-19", "20-54", "55-59", "60-64"]
+    df = df[df["age"].isin(valid_ages) & df["measure"].isin(["Incidence", "Deaths"])]
+    sorted_ages = valid_ages
 
     # Sidebar Toggles 
-    st.sidebar.markdown("## 📊 Data Analysis Configuration")
+    st.sidebar.markdown("## \U0001F4CA Data Analysis Configuration")
     show_analysis = st.sidebar.checkbox("Show Data Analysis") 
 
     if show_analysis:
         with st.sidebar.expander("Analysis Controls", expanded=True):
-            analysis_measures = ["Incidence", "Prevalence", "Deaths"]
+            analysis_measures = ["Incidence", "Deaths"]
             selected_measure = st.selectbox("Choose a measure to analyze:", analysis_measures)
             st.markdown("### Visualizations")
             show_box_age = st.checkbox("Boxplot of Distribution by Age Group")
@@ -55,33 +59,24 @@ if st.session_state.authenticated:
             show_bar_gender = st.checkbox("Bar Chart of Sum by Gender")
 
     # Dashboard Section Header
-    st.sidebar.markdown("## 📈 Interactive Dashboard Setup")
+    st.sidebar.markdown("## \U0001F4C8 Interactive Dashboard Setup")
     show_dashboard = st.sidebar.checkbox("Show Interactive Dashboard")
 
     if show_dashboard:
-        metric_display_names = {
-            "Number": "Number",
-            "Rate": "Rate (per 100,000)"
-        }
+        metric_display_names = {"Number": "Number", "Rate": "Rate (per 100,000)"}
+        available_metrics = df["metric"].unique().tolist()
         selected_dash_metric = st.sidebar.radio(
             "Select Metric:",
-            options=list(metric_display_names.keys()),
+            options=[m for m in metric_display_names if m in available_metrics],
             format_func=lambda x: metric_display_names[x]
         )
         with st.sidebar.expander("Dashboard Controls", expanded=True):
-            dashboard_order = [
-                "Incidence",
-                "Prevalence",
-                "Deaths",
-                "YLLs (Years of Life Lost)",
-                "YLDs (Years Lived with Disability)",
-                "DALYs (Disability-Adjusted Life Years)"
-            ]
+            dashboard_order = ["Incidence", "Deaths"]
             actual_measures = list(df["measure"].unique())
             final_order = [m for m in dashboard_order if m in actual_measures]
             selected_dash_measure = st.selectbox("Choose Measure for Dashboard:", final_order)
             selected_dash_gender = st.selectbox("Select Gender:", df['gender'].unique())
-            selected_dash_ages = st.multiselect("Select Age Group(s):", options=sorted_ages)
+            selected_dash_ages = st.multiselect("Select Age Group(s):", options=sorted_ages, default=sorted_ages)
             selected_dash_years = st.slider(
                 "Select Year Range:",
                 min_value=int(df['year'].min()),
@@ -90,32 +85,27 @@ if st.session_state.authenticated:
             )
 
     # Header 
-    st.markdown("## 🧬 Cancer Burden in Lebanon: Trends and Insights")
+    st.markdown("## \U0001F9EC Cancer Burden in Lebanon: Trends and Insights")
     st.markdown(
-        "Explore trends in cancer-related indicators such as incidence, prevalence, and mortality "
+        "Explore trends in cancer-related indicators such as incidence and mortality "
         "across different age groups and genders in Lebanon from 2000 to 2021. "
         "Use the visual analysis and interactive tools to uncover patterns, disparities, and key insights."
     )
     st.markdown("---")
 
-    # Common Setup
-    year_min = int(df["year"].min())
-    year_max = int(df["year"].max())
-
     # Tabs Layout
     if show_analysis and show_dashboard:
-        tab1, tab2 = st.tabs(["📊 Data Analysis", "📈 Interactive Dashboard"])
+        tab1, tab2 = st.tabs(["\U0001F4CA Data Analysis", "\U0001F4C8 Interactive Dashboard"])
     elif show_analysis:
-        tab1 = st.tabs(["📊 Data Analysis"])[0]
+        tab1 = st.tabs(["\U0001F4CA Data Analysis"])[0]
     elif show_dashboard:
-        tab2 = st.tabs(["📈 Interactive Dashboard"])[0]
+        tab2 = st.tabs(["\U0001F4C8 Interactive Dashboard"])[0]
     else:
         st.info("Please enable one or both views from the sidebar to continue.")
 
     # TAB 1: Data Analysis 
     if show_analysis:
         with tab1:
-
             df_m = df[(df["measure"] == selected_measure) & (df["metric"] == "Number")]
 
             if df_m.empty:
@@ -154,7 +144,7 @@ if st.session_state.authenticated:
                 if show_bar_age:
                     st.markdown("**Sum by Age Group**")
                     bar_age = df_m.groupby("age")["val"].sum().reindex(sorted_ages)
-                    fig_bar_age, ax_bar_age = plt.subplots(figsize=(8, 4))  # Slightly reduced width
+                    fig_bar_age, ax_bar_age = plt.subplots(figsize=(8, 4))
                     sns.barplot(x=bar_age.index, y=bar_age.values, ax=ax_bar_age)
                     ax_bar_age.set_xlabel("Age Group")
                     ax_bar_age.set_ylabel(f"Sum of {selected_measure}")
@@ -177,7 +167,6 @@ if st.session_state.authenticated:
     # TAB 2: Interactive Dashboard 
     if show_dashboard:
         with tab2:
-
             if selected_dash_ages:
                 filtered_df = df[
                     (df['measure'] == selected_dash_measure) &
@@ -197,7 +186,7 @@ if st.session_state.authenticated:
                         category_orders={"age": sorted_ages},
                         title=f"Time Trend of {selected_dash_measure} Among {selected_dash_gender}s by Age Group",
                         labels={
-                            "val": f"{selected_dash_measure.split()[0]} ({metric_display_names[selected_dash_metric]})",
+                            "val": f"{selected_dash_measure} ({metric_display_names[selected_dash_metric]})",
                             "year": "Year",
                             "age": "Age Group"
                         },
@@ -219,6 +208,7 @@ if st.session_state.authenticated:
                 else:
                     st.warning("No data found for the selected filters.")
             else:
-                st.info("Please select at least one age group to display results.")       
+                st.info("Please select at least one age group to display results.")
+
 else:
-    st.warning("🔒 This cancer analytics dashboard is password-protected. Enter the correct password in the sidebar to access.")
+    st.warning("\U0001F512 This cancer analytics dashboard is password-protected. Enter the correct password in the sidebar to access.")
