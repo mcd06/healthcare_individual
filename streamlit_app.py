@@ -8,8 +8,6 @@ st.set_page_config(layout="wide", page_title="Cancer Dashboard", page_icon="🧬
 
 # --- Color Palette ---
 seaborn_palette = ['#66C2A5', '#FC8D62', '#8DA0CB', '#E78AC3', '#A6D854']
-gender_colors = {"Male": seaborn_palette[0], "Female": seaborn_palette[1]}
-sorted_ages = ["15-19 years", "20-54 years", "55-59 years", "60-64 years", "65-74 years"]
 
 # --- Session State ---
 if "authenticated" not in st.session_state:
@@ -20,9 +18,11 @@ if "password_attempt" not in st.session_state:
 # --- Sidebar Login ---
 with st.sidebar:
     st.image("IHME.webp", width=150)
-    st.title("Login" if not st.session_state.authenticated else "🔓 Logged In")
+    st.title("🔐 Login")  # updated icon
+
     if st.session_state.authenticated:
-        if st.button("Logout 🔒"):
+        st.success("Authenticated ✅")
+        if st.button("🔓 Logout"):
             st.session_state.authenticated = False
             st.session_state.password_attempt = ""
             st.rerun()
@@ -31,11 +31,14 @@ with st.sidebar:
         st.text_input("Password", type="password", key="password_attempt")
         if st.session_state.password_attempt == CORRECT_PASSWORD:
             st.session_state.authenticated = True
+            st.rerun()
 
-# --- Main Content ---
+# --- Main App Content ---
 if st.session_state.authenticated:
     df = pd.read_csv("cancer_lebanon.csv")
     df = df[df["age"] != "All ages"]
+    sorted_ages = ["15-19 years", "20-54 years", "55-59 years", "60-64 years", "65-74 years"]
+    gender_colors = {"Male": seaborn_palette[0], "Female": seaborn_palette[1]}
 
     st.markdown("## 🧬 Cancer Burden in Lebanon Dashboard")
     st.markdown("Explore cancer incidence and mortality in Lebanon by number and rate, gender, and age groups (2000–2020).")
@@ -62,7 +65,7 @@ if st.session_state.authenticated:
             k2.metric("Latest Male Cases", f"{int(male_val):,}")
             k3.metric("Latest Female Cases", f"{int(female_val):,}")
 
-            # --- Row 1: Heatmap | Stacked Bar | Line Plot ---
+            # --- Row 1: Heatmap | Stacked Bar | Line Chart ---
             r1c1, r1c2, r1c3 = st.columns(3)
 
             heat_df = filtered_df.pivot_table(index="age", columns="year", values="val", aggfunc="sum").reindex(index=sorted_ages)
@@ -72,8 +75,7 @@ if st.session_state.authenticated:
                 color_continuous_scale="YlOrRd"
             )
             fig_heat.update_layout(
-                title="Heatmap of Total Cancer Burden by Age and Year",
-                title_x=0.5,
+                title=dict(text="Heatmap of Total Cancer Burden by Age and Year", x=0.5),
                 height=260,
                 margin=dict(t=40, b=10)
             )
@@ -88,10 +90,7 @@ if st.session_state.authenticated:
                 barmode="stack",
                 color_discrete_map=gender_colors
             )
-            fig_stack.update_layout(
-                height=260,
-                title_x=0.5
-            )
+            fig_stack.update_layout(height=260, title=dict(text="20-Year Distribution by Age and Gender", x=0.5))
             r1c2.plotly_chart(fig_stack, use_container_width=True)
 
             line_df = filtered_df[filtered_df["age"].isin(sorted_ages)].sort_values("year")
@@ -99,6 +98,8 @@ if st.session_state.authenticated:
                 line_df,
                 x="year", y="val", color="age",
                 title=f"{measure} Over Time by Age Group",
+                markers=False,
+                line_shape="linear",
                 category_orders={"age": sorted_ages},
                 labels={"val": f"{measure} ({metric})", "year": "Year", "age": "Age Group"},
                 hover_data={"year": False, "age": True, "val": ':.0f'},
@@ -106,12 +107,12 @@ if st.session_state.authenticated:
             )
             fig_line.update_layout(
                 height=260,
-                title_x=0.5,
                 plot_bgcolor='white',
                 xaxis=dict(showgrid=False, title="Year"),
                 yaxis=dict(showgrid=False, title=f"{measure} ({metric})"),
                 hovermode="closest",
-                margin=dict(t=40, b=10)
+                margin=dict(t=30, b=10),
+                title=dict(text=f"{measure} Over Time by Age Group", x=0.5)
             )
             r1c3.plotly_chart(fig_line, use_container_width=True)
 
@@ -129,40 +130,31 @@ if st.session_state.authenticated:
                 color_discrete_map=gender_colors
             )
             fig_pie.update_traces(textinfo="percent+label", pull=[0.03, 0.03])
-            fig_pie.update_layout(
-                height=260,
-                title_x=0.5
-            )
+            fig_pie.update_layout(height=260, title=dict(text="Total Distribution by Gender", x=0.5))
             r2c1.plotly_chart(fig_pie, use_container_width=True)
 
             age_sum = filtered_df.groupby("age")["val"].sum().reindex(sorted_ages)
             fig_age = px.bar(
                 x=age_sum.index,
                 y=age_sum.values,
-                labels={"x": "Age Group", "y": f"{measure} ({metric})"},
+                labels={"x": "Age Group", "y": "Total"},
                 title="Total Burden by Age Group",
                 color_discrete_sequence=[seaborn_palette[1]]
             )
-            fig_age.update_layout(
-                height=260,
-                title_x=0.5
-            )
+            fig_age.update_layout(height=260, title=dict(text="Total Burden by Age Group", x=0.5))
             r2c2.plotly_chart(fig_age, use_container_width=True)
 
             fig_box = px.box(
                 filtered_df,
                 x="age", y="val",
-                title="Distribution of Values by Age Group",
                 category_orders={"age": sorted_ages},
-                labels={"val": f"{measure} ({metric})"},
+                title="Distribution of Values by Age Group",
                 color_discrete_sequence=[seaborn_palette[4]]
             )
-            fig_box.update_layout(
-                height=260,
-                title_x=0.5
-            )
+            fig_box.update_layout(height=260, title=dict(text="Distribution of Values by Age Group", x=0.5))
             r2c3.plotly_chart(fig_box, use_container_width=True)
 
+    # Render all tabs
     render_dashboard("Incidence", "Number", tab1)
     render_dashboard("Deaths", "Number", tab2)
     render_dashboard("Incidence", "Rate", tab3)
