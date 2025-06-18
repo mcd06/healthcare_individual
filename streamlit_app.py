@@ -45,7 +45,7 @@ if st.session_state.authenticated:
 
     if show_analysis:
         with st.sidebar.expander("Analysis Controls", expanded=True):
-            analysis_measures = ["Incidence", "Prevalence", "Deaths"]
+            analysis_measures = ["Incidence", "Deaths"]
             selected_measure = st.selectbox("Choose a measure to analyze:", analysis_measures)
             st.markdown("### Visualizations")
             show_box_age = st.checkbox("Boxplot of Distribution by Age Group")
