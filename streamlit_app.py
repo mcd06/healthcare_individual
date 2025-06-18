@@ -65,7 +65,7 @@ if st.session_state.authenticated:
             col2.metric("Latest Male Cases", f"{int(male_val):,}")
             col3.metric("Latest Female Cases", f"{int(female_val):,}")
 
-            # Row 1: Heatmap | Stacked Bar | Line Chart
+            # Row 1: Heatmap | Box Plot | Line Chart
             r1c1, r1c2, r1c3 = st.columns(3)
 
             heat_df = filtered_df.pivot_table(index="age", columns="year", values="val", aggfunc="sum").reindex(index=sorted_ages)
@@ -77,18 +77,17 @@ if st.session_state.authenticated:
             fig_heat.update_layout(title="Cancer Burden by Age and Year", title_font=dict(size=18), title_x=0.0, height=260, margin=dict(t=50, b=10))
             r1c1.plotly_chart(fig_heat, use_container_width=True)
 
-            bar_df = filtered_df.groupby(["age", "gender"])["val"].sum().reset_index()
-            fig_stack = px.bar(
-                bar_df,
-                x="age", y="val", color="gender",
-                barmode="stack",
-                color_discrete_map=gender_colors,
+            fig_box = px.box(
+                filtered_df,
+                x="age", y="val",
+                color="age",
                 category_orders={"age": sorted_ages},
-                title="20-Year Distribution by Age and Gender",
+                color_discrete_sequence=seaborn_palette,
+                title="Distribution of Values by Age Group",
                 labels={"age": "Age Group", "val": label_y}
             )
-            fig_stack.update_layout(height=260, title_x=0.0)
-            r1c2.plotly_chart(fig_stack, use_container_width=True)
+            fig_box.update_layout(height=260, title_x=0.0)
+            r1c2.plotly_chart(fig_box, use_container_width=True)
 
             trend_df = (
                 filtered_df[filtered_df["age"].isin(sorted_ages)]
@@ -123,7 +122,7 @@ if st.session_state.authenticated:
 
             st.markdown("---")
 
-            # Row 2: Pie | Scatter | Box Plot 
+            # Row 2: Pie | Scatter | Stacked Bar 
             r2c1, r2c2, r2c3 = st.columns(3)
 
             gender_sum = filtered_df.groupby("gender")["val"].sum()
@@ -151,16 +150,18 @@ if st.session_state.authenticated:
             fig_scatter.update_layout(height=260, title_font_size=16, title_x=0.0, plot_bgcolor='white', xaxis=dict(showgrid=False), yaxis=dict(showgrid=False), hovermode="closest")
             r2c2.plotly_chart(fig_scatter, use_container_width=True)
 
-            fig_box = px.box(
-                filtered_df,
-                x="age", y="val",
+            bar_df = filtered_df.groupby(["age", "gender"])["val"].sum().reset_index()
+            fig_stack = px.bar(
+                bar_df,
+                x="age", y="val", color="gender",
+                barmode="stack",
+                color_discrete_map=gender_colors,
                 category_orders={"age": sorted_ages},
-                color_discrete_sequence=[seaborn_palette[0]],
-                title="Distribution of Values by Age Group",
+                title="20-Year Distribution by Age and Gender",
                 labels={"age": "Age Group", "val": label_y}
             )
-            fig_box.update_layout(height=260, title_x=0.0)
-            r2c3.plotly_chart(fig_box, use_container_width=True)
+            fig_stack.update_layout(height=260, title_x=0.0)
+            r2c3.plotly_chart(fig_stack, use_container_width=True)
 
     # Render All Tabs
     render_dashboard("Incidence", "Number", tab1)
