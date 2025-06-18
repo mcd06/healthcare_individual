@@ -41,7 +41,7 @@ if st.session_state.authenticated:
     gender_colors = {"Male": seaborn_palette[0], "Female": seaborn_palette[1]}
 
     st.markdown("## 🧬 Cancer Burden in Lebanon: Multi-Dimensional Dashboard")
-    st.markdown("Explore Lebanon's cancer burden across gender, age, time, and metrics with interactive 2D and 3D insights.")
+    st.markdown("Explore Lebanon's cancer burden across gender, age, time, and metrics with interactive 2D insights.")
 
     tab1, tab2, tab3, tab4 = st.tabs([
         "Number by Incidence", "Number by Death", "Rate by Incidence", "Rate by Death"
@@ -138,7 +138,7 @@ if st.session_state.authenticated:
             # ━━ Divider
             st.markdown("---")
 
-            # --- Row 2: Pie | 3D Scatter | Box Plot ---
+            # --- Row 2: Pie | 2D Scatter | Box Plot ---
             r2c1, r2c2, r2c3 = st.columns(3)
 
             gender_sum = filtered_df.groupby("gender")["val"].sum()
@@ -157,28 +157,31 @@ if st.session_state.authenticated:
             fig_pie.update_layout(height=260, title_font_size=16, title_x=0.0)
             r2c1.plotly_chart(fig_pie, use_container_width=True)
 
-            # 3D Scatter replacing cohort
-            fig_3d = px.scatter_3d(
+            # Scatter Plot
+            fig_scatter = px.scatter(
                 filtered_df,
-                x="age",
-                y="year",
-                z="val",
+                x="year", y="val",
                 color="gender",
-                title=f"3D View: {measure} by Age, Year, and Gender",
-                labels={"age": "Age Group", "year": "Year", "val": label_y, "gender": "Gender"},
+                symbol="age",
+                title=f"Scatter Plot: {measure} by Year and Gender",
+                labels={
+                    "year": "Year",
+                    "val": label_y,
+                    "gender": "Gender",
+                    "age": "Age Group"
+                },
                 color_discrete_map=gender_colors
             )
-            fig_3d.update_layout(
+            fig_scatter.update_layout(
                 height=260,
                 title_font_size=16,
                 title_x=0.0,
-                scene=dict(
-                    xaxis_title="Age Group",
-                    yaxis_title="Year",
-                    zaxis_title=label_y
-                )
+                plot_bgcolor='white',
+                xaxis=dict(showgrid=False),
+                yaxis=dict(showgrid=False),
+                hovermode="closest"
             )
-            r2c2.plotly_chart(fig_3d, use_container_width=True)
+            r2c2.plotly_chart(fig_scatter, use_container_width=True)
 
             fig_box = px.box(
                 filtered_df,
