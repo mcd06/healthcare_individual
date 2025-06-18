@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
+import os
 
 # Configuration
 CORRECT_PASSWORD = "cancer25"
@@ -24,7 +25,8 @@ if "password_attempt" not in st.session_state:
 
 # Sidebar Login
 with st.sidebar:
-    st.image("IHME.webp", width=150)
+    if os.path.exists("IHME.webp"):
+        st.image("IHME.webp", width=150)
     st.title("🔒 Login")
     if st.session_state.authenticated:
         if st.button("Logout"):
@@ -50,7 +52,8 @@ if st.session_state.authenticated:
 
     st.sidebar.markdown("### Filters")
     selected_measure = st.sidebar.selectbox("Select Measure", ["Incidence", "Deaths"])
-    selected_metric = st.sidebar.radio("Select Metric", ["Number", "Rate (Per 100,000)"])
+    metric_display = st.sidebar.radio("Select Metric", ["Number", "Rate (Per 100,000)"])
+    selected_metric = "Rate" if metric_display == "Rate (Per 100,000)" else "Number"
     selected_years = st.sidebar.slider("Select Year Range", min_year, max_year, (min_year, max_year))
 
     # Title
@@ -58,7 +61,7 @@ if st.session_state.authenticated:
     st.markdown("Explore Lebanon's cancer burden across gender, age, time, and metrics with interactive 2D insights.")
 
     def render_dashboard(measure, metric):
-        label_y = f"{measure} ({metric})"
+        label_y = f"{measure} ({'Rate per 100,000' if metric == 'Rate' else 'Number'})"
         filtered_df = df[
             (df["measure"] == measure) &
             (df["metric"] == metric) &
@@ -177,5 +180,5 @@ if st.session_state.authenticated:
 
 else:
     st.warning("🔒 This cancer analytics dashboard is password-protected. Enter the correct password in the sidebar to access.")
-    st.markdown(" ")  
+    st.markdown(" ")
     st.image("image.png", use_container_width=True)
