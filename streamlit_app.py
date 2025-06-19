@@ -71,6 +71,7 @@ if st.session_state.authenticated:
 
         # Choose correct aggregation
         agg_func = "mean" if metric == "Rate" else "sum"
+        value_label = "Average" if agg_func == "mean" else "Total"
 
         # Row 1: Heatmap | Bar Chart | Line Chart
         r1c1, r1c2, r1c3 = st.columns(3)
@@ -81,7 +82,7 @@ if st.session_state.authenticated:
             labels={"x": "Year", "y": "Age Group", "color": label_y},
             color_continuous_scale="YlOrRd"
         )
-        fig_heat.update_layout(title="Cancer Burden by Age and Year", title_font=dict(size=18), title_x=0.0, height=260, margin=dict(t=50, b=10))
+        fig_heat.update_layout(title=f"{value_label} {measure} by Age Group and Year", title_font=dict(size=18), title_x=0.0, height=260, margin=dict(t=50, b=10))
         r1c1.plotly_chart(fig_heat, use_container_width=True)
 
         bar_age = filtered_df.groupby("age")["val"].agg(agg_func).reindex(index=sorted_ages)
@@ -89,7 +90,7 @@ if st.session_state.authenticated:
             x=bar_age.index,
             y=bar_age.values,
             color=bar_age.index,
-            title=f"{agg_func.capitalize()} Values by Age Group",
+            title=f"{value_label} {measure} Across Age Groups",
             labels={"x": "Age Group", "y": label_y},
             color_discrete_sequence=seaborn_palette
         )
@@ -106,7 +107,7 @@ if st.session_state.authenticated:
             x="year", y="val", color="age",
             line_shape="linear",
             color_discrete_sequence=seaborn_palette,
-            title=f"Time Trend of {measure} by Age Group",
+            title=f"Yearly {measure} Trend by Age Group",
             labels={"year": "Year", "val": label_y, "age": "Age Group"},
             hover_data={"year": True, "age": True, "val": ':.1f' if metric == "Rate" else ':.0f'}
         )
@@ -130,7 +131,7 @@ if st.session_state.authenticated:
         fig_pie = px.pie(
             values=gender_sum.values,
             names=gender_sum.index,
-            title=f"{agg_func.capitalize()} Distribution by Gender",
+            title=f"{value_label} {measure} Distribution by Gender ({'Rate per 100,000' if metric == 'Rate' else 'Number'})",
             color=gender_sum.index,
             color_discrete_map=gender_colors
         )
@@ -144,7 +145,7 @@ if st.session_state.authenticated:
             x="year", y="val",
             color="gender",
             color_discrete_map=gender_colors,
-            title=f"Gender-wise {agg_func.capitalize()} {measure} per Year",
+            title=f"{measure} Trend by Gender Over Time",
             labels={"year": "Year", "val": label_y, "gender": "Gender"}
         )
         fig_scatter.update_traces(mode="markers", marker=dict(size=4, opacity=0.85, line=dict(width=0.4, color="gray")))
@@ -158,7 +159,7 @@ if st.session_state.authenticated:
             barmode="stack",
             color_discrete_map=gender_colors,
             category_orders={"age": sorted_ages},
-            title=f"{agg_func.capitalize()} by Age and Gender",
+            title=f"{measure} by Age Group and Gender",
             labels={"age": "Age Group", "val": label_y}
         )
         fig_stack.update_layout(height=260, title_x=0.0)
