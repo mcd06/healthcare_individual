@@ -56,8 +56,11 @@ if st.session_state.authenticated:
 
     # Title
     st.markdown("## 🧬 Cancer Burden in Lebanon: Multi-Dimensional Dashboard")
-    st.markdown("Explore Lebanon's cancer burden across gender, age, time, and metrics with interactive 2D insights.")
-
+    st.markdown("""
+    Analyze Lebanon’s cancer burden through a comprehensive dashboard featuring interactive visualizations of incidence and mortality by age group, gender, and year. 
+    Gain data-driven insights into long-term trends and demographic disparities across key health metrics.
+    """)
+        
     def render_dashboard(measure, metric):
         label_y = f"{measure} ({'Rate per 100,000' if metric == 'Rate' else 'Number'})"
         filtered_df = df[
