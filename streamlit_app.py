@@ -131,7 +131,7 @@ if st.session_state.authenticated:
         fig_pie = px.pie(
             values=gender_sum.values,
             names=gender_sum.index,
-            title=f"{value_label} {measure} Distribution by Gender ({'Rate per 100,000' if metric == 'Rate' else 'Number'})",
+            title=f"{value_label} {measure} Distribution by Gender ({'Rate' if metric == 'Rate' else 'Number'})",
             color=gender_sum.index,
             color_discrete_map=gender_colors
         )
